@@ -1,5 +1,7 @@
 **Python 3.7+**
+
 ``python3 -m pip install git+https://github.com/Naomi-Bot-Open-Source/discord.py/ easydev colormap youtube_dl jishaku googletrans psutil``
+
 
 Licence for https://github.com/Naomi-Bot-Open-Source/simple-paginator presented as paginator.py
 ```
