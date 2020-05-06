@@ -157,10 +157,8 @@ class CommandErrorHandler(commands.Cog):
                     description=f'```md\n{strperms}\n```', color=discord.Colour.dark_red()).set_footer(text=self.bot.user.name))
                 return
 
-        user = await self.bot.read_json('config.json')
         chn = await self.bot.read_json('config.json')
         err = "\n".join(traceback.format_exception(type(error), error, error.__traceback__))
-        user = await self.bot.fetch_user(user['bug report user'])
         chn = await self.bot.fetch_channel(chn['bug report channel'])
         
         try: 
@@ -173,7 +171,7 @@ class CommandErrorHandler(commands.Cog):
             try: await ctx.send(embed=discord.Embed(title='Кажется я состолкнулся с ошибкой', 
             description=f'Если вы считаете что эта ошибка важная свяжитесь с разработчиком.\n```py\n{err}```', 
             color=discord.Colour.dark_red()))
-            finally: pass # await user.send(f'Error with executing command {ctx.command}\nCalled by: {ctx.author}\nCalled in: {ctx.guild} > {ctx.channel}\nError: ```py\n{err}\n```')
+            finally: pass 
     
 
 def setup(bot):
