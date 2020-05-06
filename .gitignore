@@ -1,9 +1,8 @@
 
-/LICENSE
-/*.json
-/discord.log
-/README.md
-/requirments_and_licenses.md
+LICENSE
+*.json
+*.log
+*.md
 .vscode/
 __pycache__/
 
