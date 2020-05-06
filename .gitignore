@@ -1,10 +1,10 @@
-config.json
+
 LICENSE
-blacklist.json
-data.json
+*.json
+
 discord.log
 README.md
-rquirments_and_licenses.md
-toChange.json
+requirments_and_licenses.md
+
 .vscode/
 __pycache__/
