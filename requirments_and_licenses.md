@@ -4,7 +4,7 @@
 * git+https://github.com/Naomi-Bot-Open-Source/discord.py/
 * jishaku
 * colormap
-  *easydev
+  * easydev
 * googletrans
 * youtube_dl (for cogs.music)
 
