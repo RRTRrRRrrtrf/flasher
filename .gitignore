@@ -8,3 +8,4 @@ requirments_and_licenses.md
 
 .vscode/
 __pycache__/
+*.json
