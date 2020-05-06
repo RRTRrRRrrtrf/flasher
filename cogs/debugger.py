@@ -12,61 +12,36 @@ class Message_Log(commands.Cog):
 
     @commands.Cog.listener()
     @commands.guild_only()
-    async def on_message(self,ctx):
+    async def on_message(self,msg):
 
-        bl = await self.bot.read_json('blacklist.json')
-        if ctx.guild.id in bl["log"]: return
+        if msg.guild.id in (489764714549739521,336642139381301249,624279965763895307) or msg.channel.id in (688309990548570143): return
 
-        #banned = ('<@!','<@&','@here','@everyone')
-        bi = await self.bot.read_json('config.json')
-        bi = bi["bot id"]   
 
-        if ctx.author.id != bi and ctx.content or ctx.attachments:
+        if msg.content or msg.attachments or msg.embeds:
 
-            info = f'`{time.ctime(time.time())}` `{ctx.guild.name} ({ctx.guild.id})` `#{ctx.channel.name} ({ctx.channel.id})` {ctx.author.name}#{ctx.author.discriminator} ({ctx.author.id}) : \n\n'
+            info = f'`{time.ctime(time.time())}` `{msg.guild.name} ({msg.guild.id})` `#{msg.channel.name} ({msg.channel.id})` {msg.author.name}#{msg.author.discriminator} ({msg.author.id}) : \n\n'
 
-            if ctx.attachments:
-                for a in ctx.attachments:
+            if msg.attachments:
+                for a in msg.attachments:
                     info += f'Attachment:{a.url}\n\n'
                     
-            if ctx.author.bot:
+            if msg.author.bot:
                 info += 'Sent by bot.\n\n'
-            ct = ctx.content.replace('```','``')
+
+            if msg.embeds:
+                emb = msg.embeds[0]
+            else:
+                emb=None
+
+            ct = msg.content.replace('```','``')
             toSend = f'{info} ```{ct}```'
-            if not ctx.content: toSend = info
+            if not msg.content: toSend = info
             
             dchannel = await self.bot.read_json('config.json')
             dchannel = await self.bot.fetch_channel(dchannel["debug channel"])
 
-            #for i in banned:
-            #    toSend = toSend.replace(i,'**`PING DELETED`**')
-
-            try: await dchannel.send(toSend)
+            try: await dchannel.send(toSend,embed=emb)
             except: await dchannel.send(info + 'An error when sending')
-
-    @commands.command()
-    @commands.has_guild_permissions(administrator=True)
-    async def logBlacklist(self,ctx):
-        '''Используйте на своем сервере что бы бот не записывал сообщения'''
-
-        bl = await self.bot.read_json('blacklist.json')
-        if ctx.guild.id in bl["log"]: await ctx.send('> Уже в списке игнорирования'); return     
-
-        bl["log"].append(ctx.guild.id)
-        await self.bot.write_json('blacklist.json',bl)
-        await ctx.send('> OK')
-
-    @commands.command()
-    @commands.has_guild_permissions(administrator=True)
-    async def logPardon(self,ctx):
-        '''Используйте на своем сервере если вы хотите что бы бот снова записывал сообщения'''
-        
-   
-        
-        bl = await self.bot.read_json('blacklist.json')
-        bl["log"].remove(ctx.guild.id)
-        await self.bot.write_json('blacklist.json',bl)
-        await ctx.send('> OK')
 
 
 def setup(bot):

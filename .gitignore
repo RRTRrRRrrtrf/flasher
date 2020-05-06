@@ -1,0 +1,10 @@
+config.json
+LICENSE
+blacklist.json
+data.json
+discord.log
+README.md
+rquirments_and_licenses.md
+toChange.json
+.vscode/
+__pycache__/
