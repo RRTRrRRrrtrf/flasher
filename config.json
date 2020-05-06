@@ -1,0 +1,9 @@
+{
+    "token":"YOUR MAIN BOT TOKEN AS STRING",
+    "token canary":"YOUR CANARY BOT TOKEN AS STRING (ONLY FOR f.migrate)",
+    "idea channel": "CHANNEL ID (FOR COMMAND f.idea) AS INTEGER",
+    "bug report channel":"GUILD CHANNEL ID FOR BUG REPORT AS INTEGER (for utils.error_handler)",
+    "debug channel":"CHANNEL ID AS INTEGER (FOR cogs.debugger)",
+    "dashboard channel": "CHANNEL ID FOR f.dashboardAdd f.ptbAdd AS INTEGER"
+}
+
