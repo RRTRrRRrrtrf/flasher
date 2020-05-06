@@ -1,0 +1,67 @@
+{
+    "idea": 3,
+    "dashboard": {
+        "0": {
+            "name": "ID 0, Author: TL",
+            "value": "/dashboard - now work\nYou can use /dashboard {id} or /dashboard for latest writed."
+        },
+        "1": {
+            "name": "ID: 1, Author:TLß",
+            "value": "Dashboard now is configurable in bot"
+        },
+        "2": {
+            "name": "ID: 2, Author: TLß",
+            "value": "wat"
+        },
+        "3": {
+            "name": "ID: 3, Author: TLß",
+            "value": "wat"
+        },
+        "4": {
+            "name": "ID: 4, Author: TLß",
+            "value": "NeMe и BODI кикнуты с сервера"
+        }
+    },
+    "pdb": {
+        "0": {
+            "name": "Public dashboard",
+            "value": "now working /pdb"
+        },
+        "1": {
+            "name": "ID: 1, Author: TLß",
+            "value": "Public DashBoard now working"
+        },
+        "2": {
+            "name": "ID: 2, Author: A_Zalt",
+            "value": "when\n<:cz_flusshed:572376697664438273> \nmario"
+        },
+        "3": {
+            "name": "ID: 3, Author: A_Zalt",
+            "value": "fortnite\n<:sc_flooshed:682949969010884658> \nbad"
+        },
+        "4": {
+            "name": "ID: 4, Author: artem-6191",
+            "value": "¯\\\\_(ツ)\\_/¯"
+        },
+        "5": {
+            "name": "ID: 5, Author: TLß",
+            "value": "ssg"
+        },
+        "6": {
+            "name": "ID: 6, Author: TLß",
+            "value": "[sg"
+        },
+        "7": {
+            "name": "ID: 7, Author: TLß",
+            "value": "Может уже кто то начнет использовать эту комманду?"
+        },
+        "8": {
+            "name": "ID: 8, Author: TLß",
+            "value": "t"
+        }
+    },
+    "prefixes": {
+        "525003205394825257": null,
+        "319050081795964928": "#"
+    }
+}
