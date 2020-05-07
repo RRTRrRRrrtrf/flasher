@@ -4,4 +4,5 @@ LICENSE
 *.md
 .vscode/
 __pycache__/
-
+cogs/__pycache__
+flasher-bot
