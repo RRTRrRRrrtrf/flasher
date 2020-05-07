@@ -1,12 +1,13 @@
 ### **Python 3.7+**
 
 #### Pip modules:
-* git+https://github.com/Naomi-Bot-Open-Source/discord.py/
+* git+https://github.com/Naomi-Bot-Open-Source/discord.py/ (Install after jishaku!!!)
 * jishaku
+  * psutil (optional)
 * colormap
   * easydev
 * googletrans
-* youtube_dl (for cogs.music)
+* youtube_dl (optional, for cogs.music)
 
 ## Licence for https://github.com/Naomi-Bot-Open-Source/simple-paginator presented as [paginator.py](https://github.com/tuxlabore/public-flasher/blob/master/paginator.py)
 ```
