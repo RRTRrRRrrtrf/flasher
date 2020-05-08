@@ -14,7 +14,7 @@ class Message_Log(commands.Cog):
     @commands.guild_only()
     async def on_message(self,msg):
 
-        if msg.guild.id in (489764714549739521,336642139381301249,624279965763895307) or msg.channel.id in (688309990548570143): return
+        if msg.guild.id in (489764714549739521,336642139381301249,624279965763895307) or (msg.channel.id is 688309990548570143 and msg.author.id is self.bot.user.id): return
 
 
         if msg.content or msg.attachments or msg.embeds:

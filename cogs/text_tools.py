@@ -5,6 +5,7 @@ import random
 import json
 import os
 from googletrans import Translator
+from paginator import Paginator
 #import emoji
 
 
@@ -180,36 +181,24 @@ class text_tools(commands.Cog):
 
 
     @commands.command(aliases=['db'])
-    async def dashboard(self,ctx,id :int=None):
+    async def dashboard(self,ctx,id :int=0):
         """Просмотр информации про бота
         
         Пример: `f.dashboard 12` покажет запись с ID 12
         `f.dashboard` покажет последнюю запись"""
+        data = await self.bot.read_json('data.json')
+        data = data['dashboard']
+        p = Paginator(ctx)
+        
+        if id and not data[str(id)]: return
 
-        dd = data['dashboard']
-
-        if not id:
-            val = dd[list(dd)[-1]]
-
-            embed=discord.Embed(title=val['name'],description=val['value'],
-                color=discord.Colour.light_grey())
-            embed.set_footer(text=f'{ctx.prefix}{ctx.command}')
-
-            await ctx.send(embed=embed)
-
-        else:
-
-            try:
-                val = dd[str(id)]
-
-                embed=discord.Embed(title=val['name'],description=val['value'],
-                    color=discord.Colour.light_grey())
-                embed.set_footer(text=f'{ctx.prefix}{ctx.command}')
-                await ctx.send(embed=embed)
-
-            except:
-                await ctx.send('> :globe_with_meridians:  ID не найден')
-
+        for key in {key: data[key] for key in list(data.keys())[::-1]}:
+            values = data[key]
+            p.add_page(discord.Embed(title=values['name'],
+                description=values['value'],
+                color=random.randint(0x000000,0xFFFFFF)))
+        
+        await p.call_controller(start_page=id)
 
 
     @commands.command(aliases=['dashboardAdd','dbAdd','addDb'],hidden=True)
@@ -230,47 +219,6 @@ class text_tools(commands.Cog):
         emb.set_footer(text=f'{ctx.prefix}{ctx.command}')
         await chn.send(embed=emb)
         
-        await self.bot.write_json('data.json',data)
-
-        await ctx.send('> OK')
-
-
-
-    @commands.command(aliases=['pdb'])
-    async def publicDashboard(self,ctx,id :int=None):
-        """Dashboard который заполнять могут все.
-        Синтаксис идентичен комманде `dashboard`"""
-        dd = data['pdb']
-        if not id:
-            val = dd[list(dd)[-1]]
-            embed=discord.Embed(title=val['name'],description=val['value'],color=discord.Colour.light_grey())
-            embed.set_footer(text=f'{ctx.prefix}{ctx.command}')
-            await ctx.send(embed=embed)
-        else:
-            try:
-                val = dd[str(id)]
-                embed=discord.Embed(title=val['name'],description=val['value'],color=discord.Colour.light_grey())
-                embed.set_footer(text=f'{ctx.prefix}{ctx.command}')
-                await ctx.send(embed=embed)
-            except:
-                await ctx.send('> :globe_with_meridians:  ID не найден')
-    
-    
-    
-    @commands.command(aliases=['publicDashboardAdd','addPdb', 'addPublicDashboard'])
-    @commands.cooldown(1, 300, commands.BucketType.member)
-    async def pdbAdd(self,ctx,*,content):
-        '''Позволяет добавить запись в Public Dashboard'''
-        dc = await self.bot.read_json("config.json")
-        dd = data['pdb']
-        id = str(int(list(dd)[-1]) + 1)
-        dd[id] = {'name':f'ID: {id}, Author: {ctx.author.name}',"value":content}
-        chn = await self.bot.fetch_channel(dc["dashboard channel"])
-        emb = discord.Embed(description=f'Новая запись в PDB')
-        emb.add_field(name=f'ID: {id}',value=content)
-        emb.set_author(name=ctx.message.author.name, icon_url= str(ctx.author.avatar_url))
-        emb.set_footer(text=f'{ctx.prefix}{ctx.command}')
-        await chn.send(embed=emb)
         await self.bot.write_json('data.json',data)
 
         await ctx.send('> OK')

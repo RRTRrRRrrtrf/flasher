@@ -4,3 +4,4 @@
 Flasher bot is Discord bot writed on [forked discord.py](https://github.com/Naomi-Bot-Open-Source/discord.py/)
 
 ###### Publishied with MIT license, licenses of contributed parts contains in [requirments_and_licenses.md](https://github.com/tuxlabore/public-flasher/blob/master/requirments_and_licenses.md)
+
