@@ -15,52 +15,21 @@ class text_tools(commands.Cog):
     def __init__(self,bot):
         self.bot = bot
       
-
-
-    @commands.command(aliases=['capitalize','capitalizeWord','capitalizeEveryWord','title'])                # Пример Для Вас
-    async def capitalize_every_word(self,ctx, *, textArg):
-        '''Все слова начинаються с заглавной буквы.
-
-        Пример: `/title aBCD` -> `Abcd`
+    @commands.command(aliases=['textFormat','textFormating'])
+    async def formatText(self,ctx,*,text: str):
+        '''Форматирование текста различными способами
         '''
-        embed=discord.Embed(description=f'```{textArg.title()}```')
+
+        embed=discord.Embed(title='Форматирование текста',
+            color=discord.Colour.purple())
         embed.set_author(name=ctx.message.author.name, 
             icon_url= str(ctx.author.avatar_url))
         embed.set_footer(text=f'{ctx.prefix}{ctx.command}')
-
+        embed.add_field(inline=False,name='Слова начинаються с заглавных букв', value=f'```{text.title()}```')
+        embed.add_field(inline=False,name='Все буквы стают верхнего регистра', value=f'```{text.upper()}```')
+        embed.add_field(inline=False,name='Все буквы стают нижнего регистра', value=f'```{text.lower()}```')
+        embed.add_field(inline=False,name='Все буквы стают противополонжного регистра',value=f'```{text.swapcase()}```')
         await ctx.send(embed=embed)
-
-
-
-    @commands.command(aliases=['upper','uppercasewords','uppercaseword'])                           # ПРИМЕР ДЛЯ ВАС
-    async def uppercase(self,ctx, *, textArg):
-        '''Все буквы стают верхнего регистра
-
-        Пример: `/uppercase abcD` -> `ABCD`
-        '''
-        embed=discord.Embed(description=f'```{textArg.upper()}```')
-        embed.set_author(name=ctx.message.author.name, 
-            icon_url= str(ctx.author.avatar_url))
-        embed.set_footer(text=f'{ctx.prefix}{ctx.command}')
-
-        await ctx.send(embed=embed)
-
-
-
-    @commands.command(aliases=['lower','lowerwords','lowercasewords'])                              # пример для вас
-    async def lowercase(self,ctx, *, textArg):
-        '''Все слова стают нижнего регистра
-
-        Пример: `/lowercase ABCd` -> `abcd`
-        '''
-
-        embed=discord.Embed(description=f'```{textArg.lower()}```')
-        embed.set_author(name=ctx.message.author.name, 
-            icon_url= str(ctx.author.avatar_url))
-        embed.set_footer(text=f'{ctx.prefix}{ctx.command}')
-
-        await ctx.send(embed=embed)
-
 
 
     @commands.command(aliases=['suggestIdea','bug','idea'])
