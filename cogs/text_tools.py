@@ -5,7 +5,7 @@ import random
 import json
 import os
 from googletrans import Translator
-from paginator import Paginator
+from naomi_paginator import Paginator
 #import emoji
 
 

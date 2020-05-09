@@ -1,0 +1,6 @@
+
+export PYTHONDONTWRITEBYTECODE=1
+export JISHAKU_NO_UNDERSCORE=true
+
+python3.7 main.py
+

@@ -10,11 +10,6 @@ import asyncio
 import datetime
 import random
 dt = datetime.datetime
-logger = logging.getLogger('discord')   # logging
-logger.setLevel(logging.DEBUG)
-handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
-handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
-logger.addHandler(handler)
 data = None
 class Flasher(commands.Bot):
     def __init__(self):
@@ -57,9 +52,10 @@ class Flasher(commands.Bot):
                 'cogs.user_tools',
                 'cogs.img_tools',
                 'cogs.other',
-                'cogs.number_tools',
+                'cogs.number_tools'
                 # 'cogs.info', - deleted
-                'cogs.debugger')
+                #'cogs.debugger' - temporary disabled
+		)
         for i in modules:
             try:
                 self.load_extension(i)

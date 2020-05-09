@@ -6,7 +6,7 @@ import urllib.parse
 import io
 import requests
 from random import randint
-from paginator import Paginator
+from naomi_paginator import Paginator
 
 
 
