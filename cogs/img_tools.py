@@ -1,7 +1,5 @@
 import discord
 from discord.ext import commands
-import time
-import random
 from colormap import rgb2hex, rgb2hsv,hex2rgb
 import aiohttp
 

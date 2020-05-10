@@ -8,41 +8,6 @@ class CommandErrorHandler(commands.Cog):
     """Error handler"""
     def __init__(self, bot):
         self.bot = bot
-        self.perm_tl = {'add_reactions': 'Добавить новые реакции.',
-                          'administrator': 'Администратор.',
-                          'attach_files': 'Прикрепление файлов.',
-                          'ban_members': 'Блокировка пользователей.',
-                          'change_nickname': 'Смена никнейма.',
-                          'connect': 'Подключение к голосовому каналу.',
-                          'create_instant_invite': 'Создать приглашение.',
-                          'deafen_members': 'Deafen members.',
-                          'embed_links': 'Использовать ссылки.',
-                          'external_emojis': 'Использовать емодзи других серверов.',
-                          'kick_members': 'Выгнать пользователей.',
-                          'manage_channels': 'Управление каналами.',
-                          'manage_emojis': 'управлять эмодзи',
-                          'manage_guild': 'управлять сервером',
-                          'manage_messages': 'управлять сообщениями',
-                          'manage_nicknames': 'управлять никнеймами',
-                          'manage_permissions': 'управлять правами',
-                          'manage_roles': 'управлять ролями',
-                          'manage_webhooks': 'управлять вебхуками',
-                          'mention_everyone': 'упоминать всех',
-                          'move_members': 'перемещать пользователей',
-                          'mute_members': 'мутить пользователей',
-                          'priority_speaker': 'прироритетный спикер',
-                          'read_message_history': 'читать историю сообщений',
-                          'read_messages': 'читать сообщения',
-                          'send_messages': 'отправлять сообщения',
-                          'send_tts_messages': 'отправлять TTS-сообщения',
-                          'speak': 'использовать микрофон',
-                          'stream': 'стримить',
-                          'use_external_emojis': 'использовать глобальные эмодзи',
-                          'use_voice_activation': 'использовать активацию по голосу',
-                          'view_audit_log': 'просматривать журнал аудита',
-                          'view_channel': 'просматривать каналы',
-                          'view_guild_insights': 'view_guild_insights',
-                          'voice': 'подключатся к голосовым каналам'}
         self.userToReport = None
         self.chnToReport = None
 

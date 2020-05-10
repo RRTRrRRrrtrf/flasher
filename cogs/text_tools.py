@@ -1,6 +1,5 @@
 import discord
 from discord.ext import commands
-import time
 import random
 import json
 import os
@@ -182,6 +181,7 @@ class text_tools(commands.Cog):
 
         dd[id] = {'name':f'ID: {id}, Author: {ctx.author.name}',"value":content}
         chn = await self.bot.fetch_channel(dc["dashboard channel"])
+        
         emb = discord.Embed(description=f'Новая запись в Dashboard')
         emb.add_field(name=f'ID: {id}',value=content)
         emb.set_author(name=ctx.message.author.name, icon_url= str(ctx.author.avatar_url))

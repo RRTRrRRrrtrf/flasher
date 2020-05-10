@@ -2,15 +2,15 @@ import discord
 from discord.ext import commands,tasks
 import time
 import os
-import logging
 import traceback
 import datetime
 import json
-import asyncio
 import datetime
-import random
 dt = datetime.datetime
 data = None
+
+
+
 class Flasher(commands.Bot):
     def __init__(self):
         super().__init__(commands.when_mentioned_or(self.get_prefix),case_insensitive = True)
@@ -45,16 +45,16 @@ class Flasher(commands.Bot):
     def load(self):
         start = datetime.datetime.now()
         modules = ('jishaku',
-                'cogs.unknown', 
+                # 'cogs.unknown', - deleted 
                 'cogs.text_tools', 
                 # 'cogs.auto', - deleted 
                 'utils.error_handler',
                 'cogs.user_tools',
                 'cogs.img_tools',
                 'cogs.other',
-                'cogs.number_tools'
+                'cogs.number_tools',
                 # 'cogs.info', - deleted
-                #'cogs.debugger' - temporary disabled
+                'cogs.debugger' 
 		)
         for i in modules:
             try:

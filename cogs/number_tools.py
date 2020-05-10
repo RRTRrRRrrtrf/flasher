@@ -1,6 +1,5 @@
 import discord
 from discord.ext import commands
-import time
 import requests
 import humanize
 import urllib.parse
