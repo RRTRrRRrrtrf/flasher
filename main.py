@@ -6,39 +6,36 @@ import traceback
 import datetime
 import json
 import datetime
-dt = datetime.datetime
-data = None
 
 
 
 class Flasher(commands.Bot):
     def __init__(self):
-        super().__init__(commands.when_mentioned_or(self.get_prefix),case_insensitive = True)
+        super().__init__(commands.when_mentioned_or(self.get_prefix), case_insensitive = True)
         self.remove_command('help')
         self.prefix = 'f.'
         self.load()
-        self.started_at = dt.now()
-        self.data = self.read_json('data.json')
-
+        self.started_at = datetime.datetime.now()
+        self.config = self.read_json('config.json')
         
         
-
-
+    
     async def get_prefix(self, msg):
         prefixes = (await self.read_json('data.json'))["prefixes"]
-        if str(msg.author.id) not in prefixes: prefix = commands.when_mentioned_or('f.')
-        else: prefix = commands.when_mentioned_or(str(prefixes[str(msg.author.id)]))
+        if str(msg.author.id) not in prefixes: 
+            prefix = commands.when_mentioned_or('f.')
+        else: 
+            prefix = commands.when_mentioned_or(str(prefixes[str(msg.author.id)]))
         return prefix(self, msg)
 
     async def on_message(self, msg):
-        #bl_servers = (await self.read_json('blacklist.json'))['servers']
-        bl = (await self.read_json('blacklist.json'))
-
-        if msg.author.id in bl["users"]: return
+        if self.config["blacklistStatus"]:
+            bl = (await self.read_json('blacklist.json'))
+            if msg.author.id in bl["users"]: return
         await self.process_commands(msg)
 	    
     async def on_ready(self):
-        await self.change_presence(activity=discord.Game('#лучшеДома | f.help'))
+        await self.change_presence(activity=discord.Game(f' {len(self.users)} пользователей | f.help'))
         print(f'Bot online. Time is {time.ctime(time.time())}')
 
 
