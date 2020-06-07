@@ -5,6 +5,15 @@
     "bug report channel":"GUILD CHANNEL ID FOR BUG REPORT AS INTEGER (for utils.error_handler)",
     "debug channel":"CHANNEL ID AS INTEGER (FOR cogs.debugger)",
     "dashboard channel": "CHANNEL ID FOR f.dashboardAdd f.ptbAdd AS INTEGER",
-    "blacklistStatus": "USER BLACKLIST STATUS AS BOOLEAN"
+    "blacklistStatus": "USER BLACKLIST STATUS AS BOOLEAN",
+    "extensions":["jishaku",
+    "cogs.text_tools", 
+    "utils.error_handler",
+    "cogs.user_tools",
+    "cogs.img_tools",
+    "cogs.other",
+    "cogs.number_tools",
+    "cogs.debugger" 
+    ]
 }
 

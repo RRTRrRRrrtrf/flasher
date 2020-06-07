@@ -41,18 +41,7 @@ class Flasher(commands.Bot):
 
     def load(self):
         start = datetime.datetime.now()
-        modules = ('jishaku',
-                # 'cogs.unknown', - deleted 
-                'cogs.text_tools', 
-                # 'cogs.auto', - deleted 
-                'utils.error_handler',
-                'cogs.user_tools',
-                'cogs.img_tools',
-                'cogs.other',
-                'cogs.number_tools',
-                # 'cogs.info', - deleted
-                'cogs.debugger' 
-		)
+        modules = self.config["extensions"]
         for i in modules:
             try:
                 self.load_extension(i)
