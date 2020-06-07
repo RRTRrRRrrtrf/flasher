@@ -228,23 +228,11 @@ class Other(commands.Cog):
     @commands.command(hidden=True)
     @commands.is_owner()
     async def migrate(self,ctx):
-        t = await self.bot.read_json('config.json')
-        if self.bot.http.token == t["token"]: 
-            self.bot.http.token = t["token canary"]; await ctx.send('> OK')
-        elif self.bot.http.token == t["token canary"]: 
-            self.bot.http.token = t["token"]; await ctx.send('> OK')
+        if self.bot.http.token == self.bot.config["token"]: 
+            self.bot.http.token = self.bot.config["tokenCanary"]; await ctx.send('> OK')
+        elif self.bot.http.token == self.bot.config["tokenCanary"]: 
+            self.bot.http.token = self.bot.config["token"]; await ctx.send('> OK')
         else: ctx.send('Invalid token provided')
-        
-
-    @commands.command(hidden=True)
-    @commands.is_owner()
-    async def shutdown(self,ctx,t: int):
-        to = self.bot.http.token
-        del self.bot.http.token
-        time.sleep(t)
-        self.bot.http.token = to
-        await ctx.send('> Online')
-
 
 
 

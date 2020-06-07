@@ -1,11 +1,12 @@
 {
     "token":"YOUR MAIN BOT TOKEN AS STRING",
-    "token canary":"YOUR CANARY BOT TOKEN AS STRING (ONLY FOR f.migrate)",
-    "idea channel": "CHANNEL ID (FOR COMMAND f.idea) AS INTEGER",
-    "bug report channel":"GUILD CHANNEL ID FOR BUG REPORT AS INTEGER (for utils.error_handler)",
-    "debug channel":"CHANNEL ID AS INTEGER (FOR cogs.debugger)",
-    "dashboard channel": "CHANNEL ID FOR f.dashboardAdd f.ptbAdd AS INTEGER",
+    "tokenCanary":"YOUR CANARY BOT TOKEN AS STRING (ONLY FOR f.migrate)",
+    "ideaChannel": "CHANNEL ID (FOR COMMAND f.idea) AS INTEGER",
+    "bugReportChannel":"GUILD CHANNEL ID FOR BUG REPORT AS INTEGER (for utils.error_handler)",
+    "debugChannel":"CHANNEL ID AS INTEGER (FOR cogs.debugger)",
+    "dashboardChannel": "CHANNEL ID FOR f.dashboardAdd f.ptbAdd AS INTEGER",
     "blacklistStatus": "USER BLACKLIST STATUS AS BOOLEAN",
+    "debugIgnoreGuilds":["GUILD IDs PRESENTED AS INTEGER (ONLY FOR cogs.debugger)"]
     "extensions":["jishaku",
     "cogs.text_tools", 
     "utils.error_handler",

@@ -14,7 +14,7 @@ class Message_Log(commands.Cog):
     @commands.guild_only()
     async def on_message(self,msg):
 
-        if msg.guild.id in (489764714549739521,336642139381301249,624279965763895307) or msg.author.id is self.bot.user.id: return
+        if msg.guild.id in self.bot.config["debugIgnoreGuilds"] or msg.author.id is self.bot.user.id: return
 
 
         if msg.content or msg.attachments or msg.embeds:
@@ -33,12 +33,11 @@ class Message_Log(commands.Cog):
             else:
                 emb=None
 
-            ct = msg.content.replace('```','``')
+            ct = msg.content.replace('```','\u200b`\u200b`\u200b`')
             toSend = f'{info} ```{ct}```'
             if not msg.content: toSend = info
-            
-            dchannel = await self.bot.read_json('config.json')
-            dchannel = await self.bot.fetch_channel(dchannel["debug channel"])
+
+            dchannel = await self.bot.fetch_channel(self.bot.config["debugChannel"])
 
             try: await dchannel.send(toSend,embed=emb)
             except: await dchannel.send(info + 'An error when sending')

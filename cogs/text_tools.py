@@ -36,8 +36,7 @@ class text_tools(commands.Cog):
         '''Подайте идею для бота
         Пример: `/idea Скриншот сайтов`
         '''
-        chn = await self.bot.read_json('config.json')
-        chn = await self.bot.fetch_channel(chn["idea channel"])
+        chn = await self.bot.fetch_channel(self.bot.config["ideaChannel"])
 
         emb = discord.Embed(description=f'Идея {data["idea"]} от {ctx.author.name}#{ctx.author.discriminator} ({ctx.author.id}) ')
 
@@ -173,14 +172,12 @@ class text_tools(commands.Cog):
     @commands.is_owner()
     async def addDashboard(self,ctx,*,content):
         """Добавить запись в Dashboard"""
-
-        dc = await self.bot.read_json("config.json")
         dd = data['dashboard']
 
         id = str(int(list(dd)[-1]) + 1)
 
         dd[id] = {'name':f'ID: {id}, Author: {ctx.author.name}',"value":content}
-        chn = await self.bot.fetch_channel(dc["dashboard channel"])
+        chn = await self.bot.fetch_channel(self.bot.config["dashboardChannel"])
         
         emb = discord.Embed(description=f'Новая запись в Dashboard')
         emb.add_field(name=f'ID: {id}',value=content)

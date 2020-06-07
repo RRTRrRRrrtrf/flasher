@@ -122,9 +122,9 @@ class CommandErrorHandler(commands.Cog):
                     description=f'```md\n{strperms}\n```', color=discord.Colour.dark_red()).set_footer(text=self.bot.user.name))
                 return
 
-        chn = await self.bot.read_json('config.json')
+        
         err = "\n".join(traceback.format_exception(type(error), error, error.__traceback__))
-        chn = await self.bot.fetch_channel(chn['bug report channel'])
+        chn = await self.bot.fetch_channel(self.bot.config['bugReportChannel'])
         
         try: 
             await chn.send(embed=discord.Embed(title='Вызвана ошибка', 
