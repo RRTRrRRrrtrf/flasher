@@ -14,14 +14,15 @@ class Flasher(commands.Bot):
         super().__init__(commands.when_mentioned_or(self.get_prefix), case_insensitive = True)
         self.remove_command('help')
         self.prefix = 'f.'
+        self.config = json.loads(open('config.json', 'r').read())
         self.load()
         self.started_at = datetime.datetime.now()
-        self.config = self.read_json('config.json')
+        
         
         
     
     async def get_prefix(self, msg):
-        prefixes = (await self.read_json('data.json'))["prefixes"]
+        prefixes = (await self.read_json("data.json"))["prefixes"]
         if str(msg.author.id) not in prefixes: 
             prefix = commands.when_mentioned_or('f.')
         else: 
@@ -29,7 +30,7 @@ class Flasher(commands.Bot):
         return prefix(self, msg)
 
     async def on_message(self, msg):
-        if self.config["blacklistStatus"]:
+        if (await self.read_json('config.json'))["blacklistStatus"]:
             bl = (await self.read_json('blacklist.json'))
             if msg.author.id in bl["users"]: return
         await self.process_commands(msg)
@@ -37,11 +38,12 @@ class Flasher(commands.Bot):
     async def on_ready(self):
         await self.change_presence(activity=discord.Game(f' {len(self.users)} пользователей | f.help'))
         print(f'Bot online. Time is {time.ctime(time.time())}')
-
+        
 
     def load(self):
+        с = json.loads(open('config.json', 'r').read())
         start = datetime.datetime.now()
-        modules = self.config["extensions"]
+        modules = с["extensions"]
         for i in modules:
             try:
                 self.load_extension(i)
