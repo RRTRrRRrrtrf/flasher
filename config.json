@@ -6,7 +6,9 @@
     "debugChannel":"CHANNEL ID AS INTEGER (FOR cogs.debugger)",
     "dashboardChannel": "CHANNEL ID FOR f.dashboardAdd f.ptbAdd AS INTEGER",
     "blacklistStatus": "USER BLACKLIST STATUS AS BOOLEAN",
-    "debugIgnoreGuilds":["GUILD IDs PRESENTED AS INTEGER (ONLY FOR cogs.debugger)"]
+    "debugIgnoreGuilds":["GUILD IDs PRESENTED AS INTEGER (ONLY FOR cogs.debugger)"],
+    "pythonCommand":"WRITE HERE PYTHON3 COMMAND SUCH AS python, python3, python3.8 AS STRING",
+    "prefix":"PLACE HERE YOUR BOT PREFIX AS STRING"
     "extensions":["jishaku",
     "cogs.text_tools", 
     "utils.error_handler",
@@ -15,6 +17,8 @@
     "cogs.other",
     "cogs.number_tools",
     "cogs.debugger" 
-    ]
+    ],
+    "customOwnerList":["IDs OF USERS WHO CAN USE OWNER-ONLY COMMANDS AS INTEGER",
+    "LEAVE BLANK EMPTY IF ONLY BOT OWNER CAN USE OWNER-ONLY COMMANDS"]
 }
 

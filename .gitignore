@@ -1,9 +1,11 @@
 
 *.json
 *.log
-
+.mypy_cache
 .vscode
 __pycache__
 cogs/__pycache__
+utils/__pycache__
+cogs/topgg.py
 flasher-bot
 *.pyc

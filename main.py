@@ -12,22 +12,21 @@ import datetime
 class Flasher(commands.Bot):
     def __init__(self):
         super().__init__(commands.when_mentioned_or(self.get_prefix), case_insensitive = True)
-        self.remove_command('help')
-        self.prefix = 'f.'
         self.config = json.loads(open('config.json', 'r').read())
         self.load()
         self.started_at = datetime.datetime.now()
         
         
         
-    
     async def get_prefix(self, msg):
         prefixes = (await self.read_json("data.json"))["prefixes"]
         if str(msg.author.id) not in prefixes: 
-            prefix = commands.when_mentioned_or('f.')
+            prefix = commands.when_mentioned_or(self.config["prefix"])
         else: 
             prefix = commands.when_mentioned_or(str(prefixes[str(msg.author.id)]))
         return prefix(self, msg)
+
+
 
     async def on_message(self, msg):
         if (await self.read_json('config.json'))["blacklistStatus"]:
@@ -35,15 +34,20 @@ class Flasher(commands.Bot):
             if msg.author.id in bl["users"]: return
         await self.process_commands(msg)
 	    
+
+
     async def on_ready(self):
-        await self.change_presence(activity=discord.Game(f' {len(self.users)} пользователей | f.help'))
+        await self.change_presence(activity=discord.Game(
+            f' {len(self.users)} пользователей | {self.config["prefix"]}help'))
         print(f'Bot online. Time is {time.ctime(time.time())}')
         
 
+
     def load(self):
-        с = json.loads(open('config.json', 'r').read())
         start = datetime.datetime.now()
-        modules = с["extensions"]
+        modules = self.config["extensions"]
+        try: self.remove_command('help')
+        except: pass
         for i in modules:
             try:
                 self.load_extension(i)
@@ -54,23 +58,43 @@ class Flasher(commands.Bot):
         t = end - start
         print(f'Load time: {t.microseconds/1000}ms')
 
+
+
+    async def is_owner(self,member):
+        owners = self.config["customOwnerList"]
+        app = await self.application_info()
+        
+        if owners:
+            return member.id in owners
+        else:
+            if app.team:
+                return member.id in [x.id for x in app.team.members]
+            else:
+                return member.id == app.owner.id
+
+
+
     async def read_json(self, fn: str):
         with open(fn) as f:
             return json.load(f)
+
+
+
     async def write_json(self, fn: str, data):
         with open(fn, 'w') as f:
             json.dump(data, f)
-    def read_json2(self, fn: str):
-        with open(fn) as f:
-            return json.load(f)
-    def write_json2(self, fn: str, data):
-        with open(fn, 'w') as f:
-            json.dump(data, f)
+
+
 
     def restart(self):
-        os.system("python3.7 main.py")
+        os.system(self.config["pythonCommand"] + " main.py")
         exit()
         return f'Restarted succesfully. {time.ctime(time.time())}'
+    
+
+
+    def reload_config(self):
+        self.config = json.loads(open('config.json', 'r').read())
 
 
 
