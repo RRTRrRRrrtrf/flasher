@@ -29,7 +29,7 @@ class Flasher(commands.Bot):
 
 
     async def on_message(self, msg):
-        if (await self.read_json('config.json'))["blacklistStatus"]:
+        if self.config["blacklistStatus"]:
             bl = (await self.read_json('blacklist.json'))
             if msg.author.id in bl["users"]: return
         await self.process_commands(msg)
@@ -63,7 +63,7 @@ class Flasher(commands.Bot):
     async def is_owner(self,member):
         owners = self.config["customOwnerList"]
         app = await self.application_info()
-        
+
         if owners:
             return member.id in owners
         else:

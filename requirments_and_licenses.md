@@ -9,9 +9,9 @@
   * easydev
 * googletrans
 * youtube_dl (optional, for cogs.music)
+* discord.py[voice] (optional, for cogs.music, jsk voice)
 
-
-## License for https://github.com/Kali4I/Rewrite-Discord-bot-Naomi/blob/master/cogs/member/music.py presented as [cogs/music.py](https://github.com/tuxlabore/public-flasher/blob/master/cogs/music.py)
+## License for https://github.com/Kali4I/Rewrite-Discord-bot-Naomi/blob/master/cogs/member/music.py presented as [cogs/music.py](https://github.com/tuxlabore/flasher/blob/master/cogs/music.py)
 ```
 MIT License
 

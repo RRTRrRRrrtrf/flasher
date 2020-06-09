@@ -1,0 +1,9 @@
+youtube_dl 
+googletrans 
+easydev 
+colormap 
+psutil 
+jishaku 
+discord.py[voice]
+git+https://github.com/Naomi-bot-open-source/naomi-paginator 
+git+https://github.com/Naomi-Bot-Open-Source/discord.py/
