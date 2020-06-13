@@ -52,8 +52,8 @@ class Image_tools(commands.Cog):
         
         Можно использовать как ник, так и UUID игрока.
         
-        ``{self.bot.prefix}skin TuxLabore``
-        ``{self.bot.prefix}skin e458d85f78af422f889226daaabf35ce``"""
+        ``{ctx.prefix}skin TuxLabore``
+        ``{ctx.prefix}skin e458d85f78af422f889226daaabf35ce``"""
 
         emb = discord.Embed(title=f'Скин игрока {nickname}', url=f'https://mc-heads.net/body/{nickname}/600')
         emb.set_image(url=f'https://mc-heads.net/body/{nickname}/600')
