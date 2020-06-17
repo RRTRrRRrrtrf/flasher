@@ -6,6 +6,8 @@ import traceback
 import datetime
 import json
 import datetime
+import sys
+import asyncpg
 
 
 
@@ -33,6 +35,13 @@ class Flasher(commands.Bot):
             bl = (await self.read_json('blacklist.json'))
             if msg.author.id in bl["users"]: return
         await self.process_commands(msg)
+
+    async def on_message_edit(self,before,msg):
+        if not msg.author.guild_permissions.send_messages: return
+        if self.config["blacklistStatus"]:
+            bl = (await self.read_json('blacklist.json'))
+            if msg.author.id in bl["users"]: return
+        await self.process_commands(msg)    
 	    
 
 
@@ -41,7 +50,8 @@ class Flasher(commands.Bot):
             f' {len(self.users)} пользователей | {self.config["prefix"]}help'))
         print(f'Bot online. Time is {time.ctime(time.time())}')
         
-
+    async def on_connect(self):
+        self.db = await asyncpg.create_pool(self.config["sqlPath"])
 
     def load(self):
         start = datetime.datetime.now()
@@ -88,9 +98,19 @@ class Flasher(commands.Bot):
 
     def restart(self):
         os.system(self.config["pythonCommand"] + " main.py")
-        exit()
+        sys.exit()
         return f'Restarted succesfully. {time.ctime(time.time())}'
     
+
+
+    async def sql(self, code, *args):
+        outputs = []
+        async with self.db.acquire() as conn:
+            for line in code.split(';'):
+                output = await conn.fetch(line, *args)
+                outputs += output
+            await self.db.release(conn)
+        return outputs
 
 
     def reload_config(self):
