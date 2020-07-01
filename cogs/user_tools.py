@@ -6,7 +6,7 @@ import random
 
 
 class user_tools(commands.Cog):
-
+    """Команды по работе с пользователями"""
     def __init__(self,bot):
         self.bot = bot
 

@@ -10,6 +10,8 @@ from naomi_paginator import Paginator
 
 data = json.loads(open('data.json', 'r').read())
 class text_tools(commands.Cog):
+    """Команды для работы с текстом
+    Комманды в этой категории обрабатывают текст."""
 
     def __init__(self,bot):
         self.bot = bot

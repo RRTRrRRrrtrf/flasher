@@ -5,7 +5,7 @@ import aiohttp
 
 
 class Image_tools(commands.Cog):
-
+    """Команды для работы с цветами и изображениями"""
     def __init__(self,bot):
         self.bot = bot
 

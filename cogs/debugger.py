@@ -5,7 +5,7 @@ import os
 
 
 class Message_Log(commands.Cog):
-
+    """Flasher Debugger"""
     def __init__(self,bot):
         self.bot = bot
 

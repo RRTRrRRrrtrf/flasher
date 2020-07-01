@@ -5,7 +5,7 @@ import humanize
 import urllib.parse
 
 class Number_tools(commands.Cog):
-
+    """Команды по работе с числами"""
     def __init__(self,bot):
         self.bot = bot
 

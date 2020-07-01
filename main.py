@@ -21,11 +21,15 @@ class Flasher(commands.Bot):
         
         
     async def get_prefix(self, msg):
-        prefixes = (await self.read_json("data.json"))["prefixes"]
-        if str(msg.author.id) not in prefixes: 
+        if not msg.guild:
             prefix = commands.when_mentioned_or(self.config["prefix"])
-        else: 
-            prefix = commands.when_mentioned_or(str(prefixes[str(msg.author.id)]))
+            return prefix(self, msg)
+        data = await self.sql(f'SELECT * FROM prefixes WHERE id={msg.guild.id}', parse=True)
+        if not data: # [] case
+            prefix = commands.when_mentioned_or(self.config["prefix"])
+        else:
+            record = data[0]
+            prefix = commands.when_mentioned_or(record['value'])
         return prefix(self, msg)
 
 
@@ -103,14 +107,17 @@ class Flasher(commands.Bot):
     
 
 
-    async def sql(self, code, *args):
+    async def sql(self, code, *args, parse=False):
         outputs = []
         async with self.db.acquire() as conn:
             for line in code.split(';'):
                 output = await conn.fetch(line, *args)
                 outputs += output
             await self.db.release(conn)
-        return outputs
+        if not parse:
+            return outputs
+        else:
+            return [dict(i) for i in outputs]
 
 
     def reload_config(self):

@@ -1,5 +1,5 @@
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 import jishaku
 import urllib.parse
 import io
@@ -7,11 +7,13 @@ import requests
 import time
 from random import randint
 from naomi_paginator import Paginator
+import os
+import humanize
 
 
-# from mojang_api import Player
-# from currency_converter import CurrencyConverter
 class Other(commands.Cog):
+    """Другие команды
+    Комманды которым не нашлось другой категории."""
     def __init__(self, bot):
         self.bot = bot
 
@@ -46,7 +48,7 @@ class Other(commands.Cog):
 
         emb = discord.Embed(
             title="Кастомизируйте права бота",
-            description="[Приглашение со всеми правами](https://discordapp.com/api/oauth2/authorize?client_id=677176212518600714&permissions=-1&scope=bot)",
+            description=f"[Приглашение со всеми правами](https://discordapp.com/api/oauth2/authorize?client_id={self.bot.user.id}&permissions=-1&scope=bot)",
             color=discord.Colour.gold(),
         )
         emb.set_author(
@@ -55,68 +57,68 @@ class Other(commands.Cog):
         emb.set_footer(text=f"{ctx.prefix}{ctx.command}")
         emb.add_field(
             name="Пригласите бота без прав",
-            value="[Бот не создаёт свою личную роль](https://discordapp.com/api/oauth2/authorize?client_id=677176212518600714&permissions=0&scope=bot)",
+            value=f"[Бот не создаёт свою личную роль](https://discordapp.com/api/oauth2/authorize?client_id={self.bot.user.id}&permissions=0&scope=bot)",
             inline=False,
         )
         emb.add_field(
             name="Пригласите бота с правом администратора",
-            value="[Бот будет иметь права администратора](https://discordapp.com/api/oauth2/authorize?client_id=677176212518600714&permissions=8&scope=bot)",
+            value=f"[Бот будет иметь права администратора](https://discordapp.com/api/oauth2/authorize?client_id={self.bot.user.id}&permissions=8&scope=bot)",
             inline=False,
         )
+        invite = self.bot.config["supportServerInvite"]
         emb.add_field(
-            name="Саппорт сервер",
-            value="[URAN](https://discord.gg/KeQ2eEM)",
+            name="Сервер поддержки",
+            value=f"[Посетите сервер поддержки бота]({invite})",
             inline=False,
         )
 
         await ctx.send(embed=emb)
 
-    @commands.command()
-    async def prefix(self, ctx, pref=None):
-        """ Измените свой префикс на такой что вам по душе.
-
-        Пример: `f.prefix F!`
+    @commands.group(name='prefix',invoke_without_command=True)
+    @commands.guild_only()
+    async def prefix(self, ctx):
+        f"""Просмотр префикса
+        
+        Для смены префикса используйте *`prefix set`*
+        Пример: `{ctx.prefix}prefix set F!`
         
         :warning: Бот чуствителен к регистру символов
         :memo: Исполнение комманды без указаного перефикса покажет вам какой у вас сейчас префикс """
 
-        if not pref:
+        data = await self.bot.sql(f'SELECT * FROM prefixes WHERE id={ctx.guild.id}', parse=True)
 
-            try:
-                prefNow = await self.bot.read_json("data.json")
-                prefNow = prefNow["prefixes"][str(ctx.author.id)]
-            except:
-                prefNow = "/"
+        if not data: # [] case
+            prefix = self.bot.config["prefix"]
 
-            emb = discord.Embed(
-                title="Используйте /prefix {ваш префикс}",
-                description=f"У вас установлен префикс ``{prefNow}``",
-                color=discord.Colour.gold(),
-            )
-            emb.set_author(
-                name=ctx.message.author.name, icon_url=str(ctx.author.avatar_url)
-            )
-            emb.set_footer(text=f"{ctx.prefix}{ctx.command}")
-
-            await ctx.send(embed=emb)
         else:
+            prefix = data[0]
+            prefix = prefix["value"]
 
-            data = await self.bot.read_json("data.json")
-            data["prefixes"][str(ctx.author.id)] = pref
+        embed = discord.Embed(description='На сервере установлен префикс **`%s`**' % prefix,color=discord.Colour.gold())
+        embed.set_author(name=ctx.message.author.name, icon_url=str(ctx.author.avatar_url))
+        await ctx.send(embed=embed)
+    
 
-            await self.bot.write_json("data.json", data)
+    @prefix.command()
+    @commands.has_permissions(manage_guild=True)
+    @commands.guild_only()
+    async def set(self,ctx,prefix):
+        f"""Смена префикса сервера
+        
+        Для смены префикса используйте *`prefix set`*
+        Пример: `{ctx.prefix}prefix set F!`
+        
+        :warning: Бот чуствителен к регистру символов
+        :memo: Исполнение комманды без указаного перефикса покажет вам какой у вас сейчас префикс """
 
-            emb = discord.Embed(
-                title="Префикс успешно изменён",
-                description="Ваш префикс бота изменён",
-                color=discord.Colour.green(),
-            )
-            emb.set_author(
-                name=ctx.message.author.name, icon_url=str(ctx.author.avatar_url)
-            )
-            emb.set_footer(text=f"{ctx.prefix}{ctx.command}")
+        await self.bot.sql(f'INSERT INTO prefixes (id, value) VALUES ({ctx.guild.id},\'{prefix}\')'
+                            'ON CONFLICT (id) DO UPDATE SET value = excluded.value;')
+        
+        embed = discord.Embed(description='На сервере успешно установлен префикс %s' % prefix,color=discord.Colour.green())
+        embed.set_author(name=ctx.message.author.name, icon_url=str(ctx.author.avatar_url))
+        await ctx.send(embed=embed)
 
-            await ctx.send(embed=emb)
+
 
     @commands.command(name="help", aliases=["commands", "cmds"])
     async def thelp(self, ctx, *, command: str = None):
@@ -146,10 +148,11 @@ class Other(commands.Cog):
             emb.set_footer(
                 text=f"{ctx.prefix}help [команда/категория] для получения доп.информации."
             )
-            p.add_page(emb)
+            #p.add_page(emb)
             del emb
 
             for cog in __slots__:
+                cog_info = cog.__class__.__doc__.partition('\n')  # (name, partitionSymboll, description)
                 cog_commands = len(
                     [
                         x
@@ -161,7 +164,7 @@ class Other(commands.Cog):
                     pass
                 else:
                     embed.add_field(
-                        name=cog.__class__.__name__,
+                        name=cog_info[0],
                         value=", ".join(
                             [
                                 f"`{x}`"
@@ -225,8 +228,9 @@ class Other(commands.Cog):
                     color=randint(0x000000, 0xFFFFFF),
                     title="Справочник по командам",
                 )
+                cog_info = entity.__class__.__doc__.partition('\n') # (name, partitionSymboll, description)
                 embed.add_field(
-                    name=entity.__class__.__name__ + ": " + entity.__class__.__doc__,
+                    name=cog_info[0],
                     value=", ".join(
                         [
                             f"`{x}`"
@@ -272,7 +276,7 @@ class Other(commands.Cog):
                 pass
             else:
                 embed.add_field(
-                    name=cog.__class__.__name__,
+                    name=cog.__class__.__doc__.partition('\n')[0],
                     value=", ".join(
                         [
                             f"`{x}`"
@@ -352,5 +356,17 @@ class Other(commands.Cog):
             await ctx.send(f"{type(e).__name__}:  {e}")
 
 
+    @commands.command(hidden=True)
+    @commands.is_owner()
+    async def sqlBackup(self,ctx):
+        """Создать резервную копию базы данных"""
+        reporter = ctx
+        os.system(f'pg_dump {self.bot.config["sqlPath"]} > backup.psql')
+        await reporter.send(f'Backup loaded: ' + humanize.naturalsize(os.path.getsize('backup.psql')),
+            file=discord.File('backup.psql'))
+
 def setup(bot):
     bot.add_cog(Other(bot))
+
+
+

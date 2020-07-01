@@ -1,6 +1,8 @@
 
 export PYTHONDONTWRITEBYTECODE=1
 export JISHAKU_NO_UNDERSCORE=true
+export JISHAKU_NO_DM_TRACEBACK=true
+export JISHAKU_HIDE=true
 
 python3.7 main.py
 
