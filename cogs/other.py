@@ -360,7 +360,7 @@ class Other(commands.Cog):
     @commands.is_owner()
     async def sqlBackup(self,ctx):
         """Создать резервную копию базы данных"""
-        reporter = ctx
+        reporter = ctx.author
         os.system(f'pg_dump {self.bot.config["sqlPath"]} > backup.psql')
         await reporter.send(f'Backup loaded: ' + humanize.naturalsize(os.path.getsize('backup.psql')),
             file=discord.File('backup.psql'))

@@ -68,9 +68,9 @@ ALTER TABLE public.dashboard OWNER TO tl;
 CREATE TABLE public.ideas (
     id integer NOT NULL,
     topic character varying(60),
-    descriprion character varying(512) NOT NULL,
+    description character varying(512) NOT NULL,
     author bigint NOT NULL,
-    "time" time without time zone NOT NULL,
+    "time" int NOT NULL,
     CONSTRAINT ideas_author_check CHECK ((author > 0)),
     CONSTRAINT ideas_author_check1 CHECK ((16 < char_length(((author)::character varying)::text))),
     CONSTRAINT ideas_author_check2 CHECK ((22 > char_length(((author)::character varying)::text))),

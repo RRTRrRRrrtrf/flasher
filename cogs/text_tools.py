@@ -5,11 +5,15 @@ import json
 import os
 from googletrans import Translator
 from naomi_paginator import Paginator
-#import emoji
+import asyncio
+from utils.errors import (TooManyTries, CanceledByUser) 
+import time
+import datetime
+
 
 
 data = json.loads(open('data.json', 'r').read())
-class text_tools(commands.Cog):
+class Text_tools(commands.Cog):
     """Команды для работы с текстом
     Комманды в этой категории обрабатывают текст."""
 
@@ -34,34 +38,78 @@ class text_tools(commands.Cog):
 
 
     @commands.command(aliases=['suggestIdea','bug','idea'])
-    async def suggest(self,ctx,*,textArg):
-        '''Подайте идею для бота
-        Пример: `/idea Скриншот сайтов`
+    @commands.cooldown(1,60,commands.BucketType.user)
+    async def suggest(self,ctx):
+        f'''Подайте идею для бота
         '''
-        chn = await self.bot.fetch_channel(self.bot.config["ideaChannel"])
 
-        emb = discord.Embed(description=f'Идея {data["idea"]} от {ctx.author.name}#{ctx.author.discriminator} ({ctx.author.id}) ')
+        def check(msg: discord.Message):
+            return msg.author.id == ctx.author.id
 
-        emb.add_field(name='Поступившая идея',
-            value=textArg)
-        emb.set_author(name=ctx.message.author.name, 
-            icon_url= str(ctx.author.avatar_url))
-        emb.set_footer(text=f'{ctx.prefix}{ctx.command}')
+        for i in range(5): 
+            botMSG = await ctx.send('Введите тему идеи (не больше 60 символов).\n'
+                           'Отправьте "Отмена" что бы отменить подачу идеи\n'
+                           'или на "Пропустить" что бы не подавать тему для идеи\n')
+            msg = await self.bot.wait_for('message',check=check, timeout=60)
 
-        await chn.send(embed=emb)
+            topic = msg.content
+            try: await msg.delete()
+            except: pass
+
+            if topic.lower() in ('skip','пропустить','пропуск'):
+                topic = None
+                break
+            elif topic.lower() in ('отмена','отменить','cancel'):
+                raise CanceledByUser()
+
+            if len(topic) < 61:
+                await botMSG.delete()
+                break
+            if i == 4:
+                raise TooManyTries()
+
+
+        for i in range(5): 
+            botMSG = await ctx.send('Введите описание идеи (не больше 512 символов).\n'
+                                    'Отправьте "Отмена" что бы отменить подачу идеи\n')
+            msg = await self.bot.wait_for('message',check=check, timeout=60)
+
+            description = msg.content
+            try: await msg.delete()
+            except: pass
+
+            if topic.lower() in ('отмена','отменить','cancel'):
+                raise CanceledByUser()
+            if len(topic) < 61:
+                await botMSG.delete()
+                break
+            if i == 4:
+                raise TooManyTries()            
+
+        idea_number = len(await self.bot.sql('SELECT * FROM ideas;',parse=True)) + 1
+        await self.bot.sql(f'INSERT INTO ideas (topic,description,author,time) VALUES ($1,$2,$3,$4)',
+            topic,   description,   ctx.author.id,  int(time.time()))
+
+        if not topic: topic = 'Тема не была установлена'
+
+        channel = await self.bot.fetch_channel(self.bot.config['ideaChannel'])
+
+        embed = discord.Embed(title=f'Идея #{idea_number} от {ctx.author.name} • {topic}',
+            description=description,
+            timestamp=datetime.datetime.now())
+        embed.set_author(name=ctx.message.author.name,icon_url= str(ctx.author.avatar_url))
+        embed.set_footer(text='Идея была подана')
+
+        await channel.send(embed=embed)
+
+        embed = discord.Embed(title=f'Ваша идея #{idea_number} отправлена успешно',
+            color=discord.Colour.green(),
+            url=self.bot.config["supportServerInvite"])
+        embed.add_field(name=topic,
+            value=description)
+
+        await ctx.send(embed=embed)
         
-        data['idea'] +=1
-        self.bot.write_json('data.json',data)
-
-        emb = discord.Embed(description='[Ваша идея успешно отправлена](https://discord.gg/KXYkH5A)')
-        emb.set_author(name=ctx.message.author.name, 
-            icon_url= str(ctx.author.avatar_url))
-        emb.set_footer(text=f'{ctx.prefix}{ctx.command}')
-
-        await ctx.send(embed=emb)
-
-
-
     @commands.command(hidden=True)
     @commands.is_owner()
     async def msg(self,ctx,*,textArg):
@@ -77,34 +125,34 @@ class text_tools(commands.Cog):
 
     @commands.command(aliases=['tl'])
     async def translate(self,ctx,lang,*,text):
-            """Бот любезно переведёт текст который вы ему предоставили.
-            Используется Google Translate
+        """Бот любезно переведёт текст который вы ему предоставили.
+        Используется Google Translate
             
-            Пример: `f.translate en Ваш текст тут`"""
+        Пример: `f.translate en Ваш текст тут`"""
 
-            tl = Translator()
+        tl = Translator()
         
-            try:
-                tl = tl.translate(text,dest=lang)
-        
-                emb = discord.Embed(title='Перевести текст.',
-                    description=f'{tl.src.upper()} ```{text}``` {tl.dest.upper()}```{tl.text}```',
-                    color=discord.Colour.dark_blue())
-                emb.set_author(name=ctx.message.author.name, 
-                    icon_url= str(ctx.author.avatar_url))
-                emb.set_footer(text=f'{ctx.prefix}{ctx.command}')
-                
-                await ctx.send(embed=emb)
+        try:
+            tl = tl.translate(text,dest=lang)
+    
+            emb = discord.Embed(title='Перевести текст.',
+                description=f'{tl.src.upper()} ```{text}``` {tl.dest.upper()}```{tl.text}```',
+                color=discord.Colour.dark_blue())
+            emb.set_author(name=ctx.message.author.name, 
+                icon_url= str(ctx.author.avatar_url))
+            emb.set_footer(text=f'{ctx.prefix}{ctx.command}')
             
-            except:
-                emb = discord.Embed(title='Ошибка. Неправильный язык',
-                    description=f'Используйте `/translate <язык> <Ваш текст>`. Пример `/translate ja Мова солов\'їна`',
-                    color=discord.Colour.red())
-                emb.set_author(name=ctx.message.author.name, 
-                    icon_url= str(ctx.author.avatar_url))
-                emb.set_footer(text=f'{ctx.prefix}{ctx.command}')
-                
-                await ctx.send(embed=emb)                   
+            await ctx.send(embed=emb)
+            
+        except ValueError:
+            emb = discord.Embed(title='Ошибка. Неправильный язык',
+                description=f'Используйте `/translate <язык> <Ваш текст>`. Пример `/translate ja Мова солов\'їна`',
+                color=discord.Colour.red())
+            emb.set_author(name=ctx.message.author.name, 
+                icon_url= str(ctx.author.avatar_url))
+            emb.set_footer(text=f'{ctx.prefix}{ctx.command}')
+            
+            await ctx.send(embed=emb)                   
                 
 
 
@@ -194,4 +242,4 @@ class text_tools(commands.Cog):
 
 
 def setup(bot):
-    bot.add_cog(text_tools(bot))
+    bot.add_cog(Text_tools(bot))

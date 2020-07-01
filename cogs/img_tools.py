@@ -31,15 +31,13 @@ class Image_tools(commands.Cog):
         
         ``/ss google.com``
         '''
-# ChromeChain by Alice (developer of Naomi Bot), Command from artem6191
-        if not ctx.channel.nsfw:
-            ctx.command.reset_cooldown(ctx)
-            return await ctx.send(embed=discord.Embed(title='Вы можете использовать эту комманду только в NSFW канале', color=discord.Colour.red()))
-        msg = await ctx.send(embed=discord.Embed(title='Ожидаем ответ от API...'))
+        msg = await ctx.send(embed=discord.Embed(title='Ожидаем ответ от API...',
+            color=discord.Colour.light_grey()))
         try:
             async with aiohttp.ClientSession() as session:
                 async with session.get(f'https://chromechain.herokuapp.com/?url={url}') as resp:
-                    await msg.edit(content=None, embed=discord.Embed(color=ctx.author.color, title=url).set_image(url=(await resp.json())["content"]))
+                    await msg.edit(content=None, 
+                        embed=discord.Embed(color=ctx.author.color, title=url).set_image(url=(await resp.json())["content"]))
             await session.close()
         except:
             ctx.command.reset_cooldown(ctx)
