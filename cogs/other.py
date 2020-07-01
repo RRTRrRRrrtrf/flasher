@@ -293,20 +293,16 @@ class Other(commands.Cog):
     async def ping(self, ctx):
         await ctx.send(f":ping_pong: {round(self.bot.latency * 1000)}ms")
 
-    @commands.command(hidden=True)
+    @commands.command(hidden=True,aliases=['blacklist','bl','blU'])
     @commands.is_owner()
-    async def blacklistUser(self, ctx, id: discord.Member):
-        bl = await self.bot.read_json("blacklist.json")
-        bl["users"].append(id.id)
-        await self.bot.write_json("blacklist.json", bl)
+    async def blacklistUser(self, ctx, id: int):
+        await self.bot.sql(f'INSERT INTO blacklist VALUES ({id}) ON CONFLICT DO NOTHING;')
         await ctx.send("> OK")
 
-    @commands.command(hidden=True)
+    @commands.command(hidden=True, aliases=['pardon','unblacklist', 'unblacklistUser','ubl', 'ublU','pu'])
     @commands.is_owner()
-    async def pardonUser(self, ctx, id: discord.Member):
-        bl = await self.bot.read_json("blacklist.json")
-        bl["users"].remove(id.id)
-        await self.bot.write_json("blacklist.json", bl)
+    async def pardonUser(self, ctx, id: int):
+        await self.bot.sql(f'DELETE FROM blacklist WHERE id={id};')
         await ctx.send("> OK")
 
     @commands.command(hidden=True)

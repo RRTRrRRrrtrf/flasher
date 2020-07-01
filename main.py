@@ -18,8 +18,28 @@ class Flasher(commands.Bot):
         self.load()
         self.started_at = datetime.datetime.now()
         
-        
-        
+    async def on_connect(self):
+        self.db = await asyncpg.create_pool(self.config["sqlPath"])        
+    
+    async def sql(self, code, *args, parse=False):
+        outputs = []
+        async with self.db.acquire() as conn:
+            for line in code.split(';'):
+                output = await conn.fetch(line, *args)
+                outputs += output
+            await self.db.release(conn)
+        if not parse:
+            return outputs
+        else:
+            return [dict(i) for i in outputs]
+
+
+
+    def reload_config(self):
+        self.config = json.loads(open('config.json', 'r').read())
+
+
+
     async def get_prefix(self, msg):
         if not msg.guild:
             prefix = commands.when_mentioned_or(self.config["prefix"])
@@ -36,17 +56,12 @@ class Flasher(commands.Bot):
 
     async def on_message(self, msg):
         if self.config["blacklistStatus"]:
-            bl = (await self.read_json('blacklist.json'))
-            if msg.author.id in bl["users"]: return
+            blacklisted = await self.sql('SELECT * FROM blacklist WHERE id = $1;', msg.author.id)
+            if blacklisted: return 
         await self.process_commands(msg)
 
     async def on_message_edit(self,before,msg):
-        if not msg.author.guild_permissions.send_messages: return
-        if self.config["blacklistStatus"]:
-            bl = (await self.read_json('blacklist.json'))
-            if msg.author.id in bl["users"]: return
-        await self.process_commands(msg)    
-	    
+        await self.on_message(msg)	    # process commands by message edit
 
 
     async def on_ready(self):
@@ -54,8 +69,7 @@ class Flasher(commands.Bot):
             f' {len(self.users)} пользователей | {self.config["prefix"]}help'))
         print(f'Bot online. Time is {time.ctime(time.time())}')
         
-    async def on_connect(self):
-        self.db = await asyncpg.create_pool(self.config["sqlPath"])
+
 
     def load(self):
         start = datetime.datetime.now()
@@ -104,24 +118,6 @@ class Flasher(commands.Bot):
         os.system(self.config["pythonCommand"] + " main.py")
         sys.exit()
         return f'Restarted succesfully. {time.ctime(time.time())}'
-    
-
-
-    async def sql(self, code, *args, parse=False):
-        outputs = []
-        async with self.db.acquire() as conn:
-            for line in code.split(';'):
-                output = await conn.fetch(line, *args)
-                outputs += output
-            await self.db.release(conn)
-        if not parse:
-            return outputs
-        else:
-            return [dict(i) for i in outputs]
-
-
-    def reload_config(self):
-        self.config = json.loads(open('config.json', 'r').read())
 
 
 
