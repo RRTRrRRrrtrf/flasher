@@ -50,9 +50,9 @@ ALTER TABLE public.blacklist OWNER TO tl;
 
 CREATE TABLE public.dashboard (
     author bigint NOT NULL,
-    "time" time without time zone NOT NULL,
+    "time" int NOT NULL,
     topic character varying(60) NOT NULL,
-    content character varying(60),
+    content character varying(512),
     CONSTRAINT dashboard_author_check CHECK ((author > 0)),
     CONSTRAINT dashboard_author_check1 CHECK ((16 < char_length(((author)::character varying)::text))),
     CONSTRAINT dashboard_author_check2 CHECK ((char_length(((author)::character varying)::text) < 22))

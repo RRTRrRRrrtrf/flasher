@@ -108,12 +108,6 @@ class Flasher(commands.Bot):
 
 
 
-    async def write_json(self, fn: str, data):
-        with open(fn, 'w') as f:
-            json.dump(data, f)
-
-
-
     def restart(self):
         os.system(self.config["pythonCommand"] + " main.py")
         sys.exit()
