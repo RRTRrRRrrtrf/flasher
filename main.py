@@ -1,5 +1,5 @@
-import discord
-from discord.ext import commands,tasks
+import discord # pylint: disable=import-error
+from discord.ext import commands,tasks # pylint: disable=import-error
 import time
 import os
 import traceback
@@ -7,7 +7,7 @@ import datetime
 import json
 import datetime
 import sys
-import asyncpg
+import asyncpg # pylint: disable=import-error
 
 
 
@@ -41,22 +41,28 @@ class Flasher(commands.Bot):
 
 
     async def get_prefix(self, msg):
-        if not msg.guild:
-            prefix = commands.when_mentioned_or(self.config["prefix"])
-            return prefix(self, msg)
-        data = await self.sql(f'SELECT * FROM prefixes WHERE id={msg.guild.id}', parse=True)
+        data = await self.sql(f'SELECT * FROM prefixes WHERE id={msg.author.id}', parse=True)
         if not data: # [] case
             prefix = commands.when_mentioned_or(self.config["prefix"])
         else:
             record = data[0]
             prefix = commands.when_mentioned_or(record['value'])
+            return prefix(self,msg)
+
+        if msg.guild:
+            data = await self.sql(f'SELECT * FROM prefixes WHERE id={msg.guild.id}', parse=True)
+            if not data: # [] case
+                prefix = commands.when_mentioned_or(self.config["prefix"])
+            else:
+                record = data[0]
+                prefix = commands.when_mentioned_or(record['value'])
         return prefix(self, msg)
 
 
 
     async def on_message(self, msg):
         if self.config["blacklistStatus"]:
-            blacklisted = await self.sql('SELECT * FROM blacklist WHERE id = $1;', msg.author.id)
+            blacklisted = await self.sql(f'SELECT * FROM blacklist WHERE id = {msg.guild.id};')
             if blacklisted: return 
         await self.process_commands(msg)
 
@@ -123,9 +129,5 @@ data = json.loads(open('config.json', 'r').read())
 
 if __name__ == "__main__":
     bot = Flasher()
-    discord.gateway.IdentifyConfig.browser = 'Discord Android'
+    discord.gateway.IdentifyConfig.browser = 'Discord Android' # pylint: disable=no-member
     bot.run(data['token'], reconnect=True, bot=True)
-
-
-
-

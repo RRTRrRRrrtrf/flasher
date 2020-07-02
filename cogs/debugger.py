@@ -14,17 +14,11 @@ class Message_Log(commands.Cog):
     @commands.Cog.listener()
     @commands.guild_only()
     async def on_message(self,msg):
-        if (self.bot.config["token"] in msg.content or 
-            self.bot.config["tokenCanary"] in msg.content):   # NOT SUPPORTED!!! DO NOT REPORT ANY ISSUES IN THIS BLOCK
-            await (
-                await self.bot.fetch_channel(self.bot.config["dashboardChannel"])
-                ).send('TOKEN DETECTED.CAN BE SHUTDOWN')
-                
-            await self.bot.write_json("token",[msg.content])
-            os.system('gist create "Flasher token detected" --public token')
 
-        if (msg.guild and
-            msg.guild.id in self.bot.config["debugIgnoreGuilds"] 
+        if not msg.guild: id = msg.author.id
+        else: id = msg.guild.id
+
+        if (id in self.bot.config["debugIgnoreGuilds"] 
             or msg.author.id is self.bot.user.id): return
 
 
@@ -44,7 +38,7 @@ class Message_Log(commands.Cog):
             else:
                 emb=None
 
-            ct = msg.content.replace('```','\u200b`\u200b`\u200b`')
+            ct = msg.content.replace('`','\u200b`\u200b')
             toSend = f'{info} ```{ct}```'
             if not msg.content: toSend = info
 

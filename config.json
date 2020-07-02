@@ -1,6 +1,5 @@
 {
     "token":"YOUR MAIN BOT TOKEN AS STRING",
-    "tokenCanary":"YOUR CANARY BOT TOKEN AS STRING (ONLY FOR f.migrate)",
     "ideaChannel": "CHANNEL ID (FOR COMMAND f.idea) AS INTEGER",
     "bugReportChannel":"GUILD CHANNEL ID FOR BUG REPORT AS INTEGER (for utils.error_handler)",
     "debugChannel":"CHANNEL ID AS INTEGER (FOR cogs.debugger)",

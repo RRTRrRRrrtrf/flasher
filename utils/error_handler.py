@@ -126,18 +126,23 @@ class CommandErrorHandler(commands.Cog):
 
 
             elif isinstance(error, TooManyTries):
-                await ctx.command.reset_cooldown()
+                ctx.command.reset_cooldown(ctx)
                 await ctx.send(f'> Исполнение команды `{ctx.command.name}` вызваной {ctx.author.mention} было остановлено по причине слишком большого количества попыток ввести аргумент')
                 return
             
             elif isinstance(error, asyncio.TimeoutError):
-                await ctx.command.reset_cooldown()
+                ctx.command.reset_cooldown(ctx)
                 await ctx.send(f'> Исполнение команды `{ctx.command.name}` вызваной {ctx.author.mention} было остановлено по причине слишком большого использованого времени что бы ввести аргумент')
                 return
 
             elif isinstance(error, CanceledByUser):
-                await ctx.command.reset_cooldown()
+                ctx.command.reset_cooldown(ctx)
                 await ctx.send(f'> Исполнение команды `{ctx.command.name}` вызваной {ctx.author.mention} было остановлено автором сообщения')
+                return
+
+            elif isinstance(error, PrefixTooLong):
+                ctx.command.reset_cooldown(ctx)
+                await ctx.send(f'> Значение префикса не может быть больше чем 7 символов!')
                 return
         
         err = "\n".join(traceback.format_exception(type(error), error, error.__traceback__))

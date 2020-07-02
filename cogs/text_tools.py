@@ -6,13 +6,11 @@ import os
 from googletrans import Translator
 from naomi_paginator import Paginator
 import asyncio
-from utils.errors import (TooManyTries, CanceledByUser) 
+from utils.errors import (TooManyTries, CanceledByUser) # pylint: disable=import-error
 import time
 import datetime
 
 
-
-data = json.loads(open('data.json', 'r').read())
 class Text_tools(commands.Cog):
     """Команды для работы с текстом
     Комманды в этой категории обрабатывают текст."""

@@ -9,6 +9,7 @@ from random import randint
 from naomi_paginator import Paginator
 import os
 import humanize
+from utils.errors import PrefixTooLong # pylint: disable=import-error
 
 
 class Other(commands.Cog):
@@ -85,36 +86,69 @@ class Other(commands.Cog):
         :warning: Бот чуствителен к регистру символов
         :memo: Исполнение комманды без указаного перефикса покажет вам какой у вас сейчас префикс """
 
-        data = await self.bot.sql(f'SELECT * FROM prefixes WHERE id={ctx.guild.id}', parse=True)
-
-        if not data: # [] case
-            prefix = self.bot.config["prefix"]
-
+        server_data = await self.bot.sql(f'SELECT * FROM prefixes WHERE id={ctx.guild.id}', parse=True)
+        user_data = await self.bot.sql(f'SELECT * FROM prefixes WHERE id={ctx.author.id}', parse=True)
+        
+        if not server_data: # [] case
+            server_prefix = self.bot.config["prefix"]
         else:
-            prefix = data[0]
-            prefix = prefix["value"]
+            server_prefix = server_data[0]
+            server_prefix = server_prefix["value"]
 
-        embed = discord.Embed(description='На сервере установлен префикс **`%s`**' % prefix,color=discord.Colour.gold())
+        if not user_data: # [] case
+            user_prefix = self.bot.config["prefix"]
+        else:
+            user_prefix = user_data[0]
+            user_prefix = user_prefix["value"]
+
+        embed = discord.Embed(description='На сервере установлен префикс **`%s`**' % server_prefix,color=discord.Colour.gold())
+        embed.add_field(name='Персональный префикс', value='У вас установлен префикс **`%s`**' % user_prefix)
         embed.set_author(name=ctx.message.author.name, icon_url=str(ctx.author.avatar_url))
+        embed.set_footer(text=f'{ctx.prefix}{ctx.command}')
         await ctx.send(embed=embed)
     
 
-    @prefix.command()
+    @prefix.command(name='guild', aliases=['server'])
     @commands.has_permissions(manage_guild=True)
     @commands.guild_only()
-    async def set(self,ctx,prefix):
+    @commands.cooldown(1,15,commands.BucketType.guild)
+    async def prefix_guild(self,ctx,prefix):
         f"""Смена префикса сервера
         
-        Для смены префикса используйте *`prefix set`*
-        Пример: `{ctx.prefix}prefix set F!`
+        Для смены префикса используйте *`prefix guild`*
+        Пример: `{ctx.prefix}prefix guild F!`
         
         :warning: Бот чуствителен к регистру символов
         :memo: Исполнение комманды без указаного перефикса покажет вам какой у вас сейчас префикс """
+        
+        if len(prefix) > 7: raise PrefixTooLong()
 
         await self.bot.sql(f'INSERT INTO prefixes (id, value) VALUES ({ctx.guild.id},\'{prefix}\')'
                             'ON CONFLICT (id) DO UPDATE SET value = excluded.value;')
         
         embed = discord.Embed(description='На сервере успешно установлен префикс %s' % prefix,color=discord.Colour.green())
+        embed.set_author(name=ctx.message.author.name, icon_url=str(ctx.author.avatar_url))
+        await ctx.send(embed=embed)
+
+
+
+    @prefix.command(name='self', aliases=['user'])
+    @commands.cooldown(1,8,commands.BucketType.user)
+    async def prefix_self(self,ctx,prefix):
+        f"""Смена персонального префикса
+        
+        Для смены префикса используйте *`prefix self`*
+        Пример: `{ctx.prefix}prefix self F!`
+        
+        :warning: Бот чуствителен к регистру символов
+        :memo: Исполнение комманды без указаного перефикса покажет вам какой у вас сейчас префикс """
+        
+        if len(prefix) > 7: raise PrefixTooLong()
+
+        await self.bot.sql(f'INSERT INTO prefixes (id, value) VALUES ({ctx.author.id},\'{prefix}\')'
+                            'ON CONFLICT (id) DO UPDATE SET value = excluded.value;')
+        
+        embed = discord.Embed(description='Персональный префикс %s успешно установлен' % prefix,color=discord.Colour.green())
         embed.set_author(name=ctx.message.author.name, icon_url=str(ctx.author.avatar_url))
         await ctx.send(embed=embed)
 
@@ -305,17 +339,7 @@ class Other(commands.Cog):
         await self.bot.sql(f'DELETE FROM blacklist WHERE id={id};')
         await ctx.send("> OK")
 
-    @commands.command(hidden=True)
-    @commands.is_owner()
-    async def migrate(self, ctx):
-        if self.bot.http.token == self.bot.config["token"]:
-            self.bot.http.token = self.bot.config["tokenCanary"]
-            await ctx.send("> OK")
-        elif self.bot.http.token == self.bot.config["tokenCanary"]:
-            self.bot.http.token = self.bot.config["token"]
-            await ctx.send("> OK")
-        else:
-            ctx.send("Invalid token provided")
+
 
     @commands.command(name="sql", hidden=True)
     @commands.is_owner()
