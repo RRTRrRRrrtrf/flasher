@@ -6,7 +6,6 @@
     "dashboardChannel": "CHANNEL ID FOR f.dashboardAdd f.ptbAdd AS INTEGER",
     "blacklistStatus": "USER BLACKLIST STATUS AS BOOLEAN",
     "debugIgnoreGuilds":["GUILD IDs PRESENTED AS INTEGER (ONLY FOR cogs.debugger)"],
-    "pythonCommand":"WRITE HERE PYTHON3 COMMAND SUCH AS python, python3, python3.8 AS STRING",
     "prefix":"PLACE HERE YOUR BOT PREFIX AS STRING",
     "sqlPath":"PLACE HERE PATH TO PSQL BASE LIKE postgresql://user:password@ip:port/db_name",
     "supportServerInvite":"Place here server invite",
