@@ -1,7 +1,7 @@
 # public-flasher
 
 [Flasher Bot](https://discordapp.com/api/oauth2/authorize?client_id=677176212518600714&permissions=-1&scope=bot) code.
-Flasher bot is Discord bot writed on [forked discord.py](https://github.com/Naomi-Bot-Open-Source/discord.py/)
+Flasher bot is Discord bot writed on [discord.py](https://github.com/Rapptz/discord.py/)
 
 # Requirments
 
@@ -9,9 +9,10 @@ Flasher bot is Discord bot writed on [forked discord.py](https://github.com/Naom
 ### PostgreSQL 10.12+
 
 #### Pip modules:
-* git+https://github.com/Naomi-Bot-Open-Source/discord.py/ (Install after jishaku!!!)
+* discord.py (1.3.2+)
+ * or git+https://github.com/Naomi-bot-open-source/discord.py
 * git+https://github.com/Naomi-bot-open-source/naomi-paginator
-* jishaku
+* jishaku (any version)
   * psutil (optional)
 * colormap
   * easydev
