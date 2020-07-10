@@ -140,31 +140,7 @@ class Text_tools(commands.Cog):
             emb.set_footer(text=f'{ctx.prefix}{ctx.command}')
             
             await ctx.send(embed=emb)                   
-                
 
-
-    @commands.command()
-    async def passGen(self,ctx,howmany: int,lengs: int):
-        """Генератор паролей.
-
-        Пример: `f.passGen 10 16` - сгенерируется 10 паролей длиной 16 символов
-        :warning: В целях предотвращения крашей бота установлен лимит: максимальное количество паролей - 49, а макс. длина - 24."""
-
-        if howmany < 50 and lengs < 25: 
-
-            a = ''
-            b = ''
-
-            for i in range(howmany):
-                i = i # Проигнорируйте эту строку, просто что бы линтер не ругался
-                for i in range(lengs): a += random.choice('1234567890QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm')
-                b += '> ' + a + '\n'
-                a = ''
-
-            await ctx.send(f'{b}\nСгенерировано {howmany} паролей длинной {lengs} символов.')
-
-        else:
-            await ctx.send(f'> Ошибка. Значения слишком большие.\n> Максимальное количество - 49, максимальная длина - 24')
 
 
 
