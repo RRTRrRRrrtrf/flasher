@@ -124,12 +124,6 @@ class Flasher(commands.Bot):
 
 
 
-    async def read_json(self, fn: str):
-        with open(fn) as f:
-            return json.load(f)
-
-
-
     def restart(self):
         print(Back.BLUE + Fore.RED + '\n\n\nRestart\n\n')
         os.execl(sys.executable, sys.executable, *sys.argv)
