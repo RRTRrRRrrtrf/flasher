@@ -18,20 +18,28 @@ class Text_tools(commands.Cog):
     def __init__(self,bot):
         self.bot = bot
       
-    @commands.command(aliases=['textFormat','textFormating'])
+    @commands.command(aliases=['textFormat','textFormating','title','upper',
+                               'lower','uppercase','lowercase','len','length'])
     async def formatText(self,ctx,*,text: str):
         '''Форматирование текста различными способами
         '''
+        
+        if len(text) > 751:
+            return await ctx.send('> Текст должен быть не больше 750 символов')
 
         embed=discord.Embed(title='Форматирование текста',
             color=discord.Colour.purple())
         embed.set_author(name=ctx.message.author.name, 
             icon_url= str(ctx.author.avatar_url))
         embed.set_footer(text=f'{ctx.prefix}{ctx.command}')
+        
         embed.add_field(inline=False,name='Слова начинаються с заглавных букв', value=f'```{text.title()}```')
         embed.add_field(inline=False,name='Все буквы стают верхнего регистра', value=f'```{text.upper()}```')
         embed.add_field(inline=False,name='Все буквы стают нижнего регистра', value=f'```{text.lower()}```')
         embed.add_field(inline=False,name='Все буквы стают противополонжного регистра',value=f'```{text.swapcase()}```')
+        embed.add_field(inline=False,name='Все буквы идут в обратном порядке',value=f'```{text[::-1]}```')
+        embed.add_field(inline=False,name='Длина текста',value=f'```{len(text)}```')
+        
         await ctx.send(embed=embed)
 
 

@@ -44,22 +44,6 @@ class Number_tools(commands.Cog):
         emb.set_footer(text=f'{ctx.prefix}{ctx.command}')
         await ctx.send(embed=emb)    
 
-    @commands.command(aliases=['lengst','length'])                                                            # Пример для вас = 14
-    async def len(self,ctx,*,textArg):
-        '''Обчислить длину строки
-
-        Пример: `/len abcd` -> `4`
-        '''
-        textFixed = textArg.replace('``',r"`\`")                             # Это необходимо для того что бы `` не ломало блок кода в эмбеде
-        embed=discord.Embed(description=f'Длина вашей строки ``{textFixed}`` - {len(textArg)}')
-        embed.set_author(name=ctx.message.author.name, icon_url= str(ctx.author.avatar_url))
-        embed.set_footer(text=f'{ctx.prefix}{ctx.command}')
-        await ctx.send(embed=embed)
-            
-
-
-
-
 
 
 def setup(bot):
