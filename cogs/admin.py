@@ -74,6 +74,91 @@ class Admin(commands.Cog):
         os.system(f'pg_dump {self.bot.config["sqlPath"]} > backup.psql')
         await reporter.send(f'Backup loaded: ' + humanize.naturalsize(os.path.getsize('backup.psql')),
             file=discord.File('backup.psql'))
+    
+    
+    
+    @commands.command(hidden=True)
+    async def msg(self,ctx,*,textArg):
+        '''Отправить сообщение от имени бота
+
+        '''
+    
+        await ctx.send(textArg.replace(r' \ ',''))
+        try:await ctx.message.delete()
+        except:pass
+    
+    
+    
+    @commands.command(aliases=['dashboardAdd','dbAdd','addDb'],hidden=True)
+    async def addDashboard(self,ctx):
+        """Добавить запись в Dashboard"""
+        def check(msg: discord.Message):
+            return msg.author.id == ctx.author.id
+
+        for i in range(5): 
+            botMSG = await ctx.send('Введите тему записи (не больше 60 символов).\n'
+                           'Отправьте "Отмена" что бы отменить подачу идеи\n')
+            msg = await self.bot.wait_for('message',check=check, timeout=60)
+
+            topic = msg.content
+            try: await msg.delete()
+            except: pass
+
+            if topic.lower() in ('отмена','отменить','cancel'):
+                raise CanceledByUser()
+            
+            if len(topic) < 61:
+                await botMSG.delete()
+                break
+            if i == 4:
+                raise TooManyTries()
+
+        for i in range(5): 
+            botMSG = await ctx.send('Введите описание записи (не больше 512 символов).\n'
+                                    'Отправьте "Отмена" что бы отменить подачу идеи\n'
+                                    'или "Пропустить" что бы не отправлять описание для записи\n')
+            msg = await self.bot.wait_for('message',check=check, timeout=60)
+
+            description = msg.content
+            try: await msg.delete()
+            except: pass
+
+            if description.lower() in ('skip','пропустить','пропуск'):
+                description = None
+                break
+            elif description.lower() in ('отмена','отменить','cancel'):
+                raise CanceledByUser()
+
+            if len(description) < 513:
+                await botMSG.delete()
+                break
+            if i == 4:
+                raise TooManyTries()            
+
+        write_number = len(await self.bot.sql('SELECT * FROM dashboard;',parse=True)) + 1
+        await self.bot.sql(f'INSERT INTO dashboard (author, topic, content, time) VALUES ($3,$1,$2,$4)',
+            topic,   description,   ctx.author.id,  int(time.time()))
+
+        if not topic: topic = 'Тема не была установлена'
+
+        channel = await self.bot.fetch_channel(self.bot.config['dashboardChannel'])
+
+        embed = discord.Embed(title=f'Запись #{write_number} от {ctx.author.name} • {topic}',
+            description=description,
+            timestamp=datetime.datetime.now())
+        embed.set_author(name=ctx.message.author.name,icon_url= str(ctx.author.avatar_url))
+        embed.set_footer(text='Запись опубликована')
+
+        await channel.send(embed=embed)
+
+        embed = discord.Embed(title=f'Ваша запись #{write_number} опубликована успешно',
+            color=discord.Colour.green(),
+            url=self.bot.config["supportServerInvite"])
+        embed.add_field(name=topic,
+            value=description)
+
+        await ctx.send(embed=embed)
+
         
 
 

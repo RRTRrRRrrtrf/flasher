@@ -108,17 +108,6 @@ class Text_tools(commands.Cog):
 
         await ctx.send(embed=embed)
         
-    @commands.command(hidden=True)
-    @commands.is_owner()
-    async def msg(self,ctx,*,textArg):
-        '''Отправить сообщение от имени бота
-
-        '''
-    
-        await ctx.send(textArg.replace(r' \ ',''))
-        try:await ctx.message.delete()
-        except:pass
-
 
 
     @commands.command(aliases=['tl'])
@@ -179,22 +168,6 @@ class Text_tools(commands.Cog):
 
 
 
-    @commands.command(hidden=True)
-    async def genAd(self,ctx):
-        """Как вам удалось найти наш генератор рекламы?"""
-
-        column1 = random.choice(['Только','Ура!','Внимание!','Наконецто:','Это оно!','Поспеши!'])
-        column2 = random.choice(['Ждя тебя','Для твоей семьи','Для женщин','Для детей','Для мужчин','Для бабулек под подъездом','Для кота'])
-        column3 = random.choice(['сегодня','завтра','действительно никогда','этой пятницы','в твоем коте','в будние дни','в часы когда именно тебе везти не будет'])
-        column4 = random.choice(['лучшая','никому не нужная','уникальная','безпроиграшная','долгожданная','сезонная','доступная'])
-        column5 = random.choice(['скидка','предложение','тварь блохастая','акция','выгода','цена'])
-        column6 = random.choice(['50кот-процентов.','2 за ценой кота.','1 + 1 = -1.','на всё.','1999.99 руб.','99 руб','каждый десятый проезд в трамваее с 5:00 по 7:00 беспатный!'])
-        column7 = random.choice(['Не пропускай!','Не прогуливай уроки!','Выбери нас!','Не жди!','Будь сожраный львом!','Успей!','Получи ляща по лицу!'])
-        
-        await ctx.send(f'> **{column1} {column2} {column3} {column4} {column5} {column6} {column7}**\n Для <@{ctx.author.id}>')
-
-
-
     @commands.command(aliases=['db'])
     async def dashboard(self,ctx):
         """Просмотр информации про бота"""
@@ -208,78 +181,6 @@ class Text_tools(commands.Cog):
                 color=random.randint(0x000000,0xFFFFFF))
             p.add_page(embed)
         await p.call_controller()
-
-    @commands.command(aliases=['dashboardAdd','dbAdd','addDb'],hidden=True)
-    @commands.is_owner()
-    async def addDashboard(self,ctx):
-        """Добавить запись в Dashboard"""
-        def check(msg: discord.Message):
-            return msg.author.id == ctx.author.id
-
-        for i in range(5): 
-            botMSG = await ctx.send('Введите тему записи (не больше 60 символов).\n'
-                           'Отправьте "Отмена" что бы отменить подачу идеи\n')
-            msg = await self.bot.wait_for('message',check=check, timeout=60)
-
-            topic = msg.content
-            try: await msg.delete()
-            except: pass
-
-            if topic.lower() in ('отмена','отменить','cancel'):
-                raise CanceledByUser()
-            
-            if len(topic) < 61:
-                await botMSG.delete()
-                break
-            if i == 4:
-                raise TooManyTries()
-
-
-        for i in range(5): 
-            botMSG = await ctx.send('Введите описание записи (не больше 512 символов).\n'
-                                    'Отправьте "Отмена" что бы отменить подачу идеи\n'
-                                    'или "Пропустить" что бы не отправлять описание для записи\n')
-            msg = await self.bot.wait_for('message',check=check, timeout=60)
-
-            description = msg.content
-            try: await msg.delete()
-            except: pass
-
-            if description.lower() in ('skip','пропустить','пропуск'):
-                description = None
-                break
-            elif description.lower() in ('отмена','отменить','cancel'):
-                raise CanceledByUser()
-
-            if len(description) < 513:
-                await botMSG.delete()
-                break
-            if i == 4:
-                raise TooManyTries()            
-
-        write_number = len(await self.bot.sql('SELECT * FROM dashboard;',parse=True)) + 1
-        await self.bot.sql(f'INSERT INTO dashboard (author, topic, content, time) VALUES ($3,$1,$2,$4)',
-            topic,   description,   ctx.author.id,  int(time.time()))
-
-        if not topic: topic = 'Тема не была установлена'
-
-        channel = await self.bot.fetch_channel(self.bot.config['dashboardChannel'])
-
-        embed = discord.Embed(title=f'Запись #{write_number} от {ctx.author.name} • {topic}',
-            description=description,
-            timestamp=datetime.datetime.now())
-        embed.set_author(name=ctx.message.author.name,icon_url= str(ctx.author.avatar_url))
-        embed.set_footer(text='Запись опубликована')
-
-        await channel.send(embed=embed)
-
-        embed = discord.Embed(title=f'Ваша запись #{write_number} опубликована успешно',
-            color=discord.Colour.green(),
-            url=self.bot.config["supportServerInvite"])
-        embed.add_field(name=topic,
-            value=description)
-
-        await ctx.send(embed=embed)
 
 
 
