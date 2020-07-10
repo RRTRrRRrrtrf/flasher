@@ -103,7 +103,7 @@ class Flasher(commands.Bot):
                 self.load_extension(extension)
                 print( Fore.BLACK + Back.GREEN + f'{extension} loaded')
             except:
-                print(Back.RED + 'Can\'t load {}:\n{}'.format(i, traceback.format_exc()))
+                print(Back.RED + 'Can\'t load {}:\n{}'.format(extension, traceback.format_exc()))
         end = datetime.datetime.now()
         t = end - start
         print(Back.BLUE + f'Load time: {t.microseconds/1000}ms')
