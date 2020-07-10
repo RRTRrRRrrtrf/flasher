@@ -6,9 +6,7 @@ import requests
 import time
 from random import randint
 from naomi_paginator import Paginator
-import humanize
 from utils.errors import PrefixTooLong # pylint: disable=import-error
-
 
 class Other(commands.Cog):
     """Другие команды
@@ -120,10 +118,10 @@ class Other(commands.Cog):
         :memo: Исполнение комманды без указаного перефикса покажет вам какой у вас сейчас префикс """
         
         if len(prefix) > 7: raise PrefixTooLong()
-
-        await self.bot.sql(f'INSERT INTO prefixes (id, value) VALUES ({ctx.guild.id},\'{prefix}\')'
-                            'ON CONFLICT (id) DO UPDATE SET value = excluded.value;')
         
+        await self.bot.sql(f'INSERT INTO prefixes (id, value) VALUES ($1,$2)'
+                            'ON CONFLICT (id) DO UPDATE SET value = excluded.value;', ctx.guild.id, prefix)
+                            
         embed = discord.Embed(description='На сервере успешно установлен префикс %s' % prefix,color=discord.Colour.green())
         embed.set_author(name=ctx.message.author.name, icon_url=str(ctx.author.avatar_url))
         await ctx.send(embed=embed)
@@ -143,8 +141,9 @@ class Other(commands.Cog):
         
         if len(prefix) > 7: raise PrefixTooLong()
 
-        await self.bot.sql(f'INSERT INTO prefixes (id, value) VALUES ({ctx.author.id},\'{prefix}\')'
-                            'ON CONFLICT (id) DO UPDATE SET value = excluded.value;')
+        await self.bot.sql(f'INSERT INTO prefixes VALUES ($1,$2) '
+                            'ON CONFLICT (id) DO UPDATE SET value = excluded.value;', ctx.author.id, prefix)
+        #except postgrelib_exceptions._base.InterfaceError: pass
         
         embed = discord.Embed(description='Персональный префикс %s успешно установлен' % prefix,color=discord.Colour.green())
         embed.set_author(name=ctx.message.author.name, icon_url=str(ctx.author.avatar_url))

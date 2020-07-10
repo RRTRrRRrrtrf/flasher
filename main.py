@@ -39,7 +39,20 @@ class Flasher(commands.Bot):
             print(Back.RED + 'Postgres not loaded. Stoping')
             exit
     
+    
+    
     async def sql(self, code, *args, parse=False):
+        outputs = []
+        async with self.db.acquire() as connection:
+            output = await connection.fetch(code, *args)
+            await self.db.release(connection)
+        if not parse:
+            return outputs
+        else:
+            return [dict(i) for i in output]
+    
+    
+    async def multisql(self, code, *args, parse=False):
         outputs = []
         async with self.db.acquire() as conn:
             for line in code.split(';'):

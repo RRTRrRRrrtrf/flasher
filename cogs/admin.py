@@ -3,7 +3,8 @@ from discord.ext import commands
 import jishaku
 from naomi_paginator import Paginator
 import os
-
+import humanize
+import datetime
 
 class Admin(commands.Cog):
     """Комманды для владельца бота"""
@@ -31,8 +32,9 @@ class Admin(commands.Cog):
         """Исключить пользователя из ЧС бота."""
         await self.bot.sql(f'DELETE FROM blacklist WHERE id={id};')
         await ctx.send("> OK")
-        
-        
+
+
+
     @commands.command(name="sql", hidden=True)
     async def sql(self, ctx, *, code: jishaku.codeblocks.codeblock_converter):
         """Исполнить запрос к PostgreSQL"""
@@ -44,7 +46,7 @@ class Admin(commands.Cog):
             for line in code.content.split("\n"):
                 if line.replace(" ", "") != "":
 
-                    output = await self.bot.sql(line)
+                    output = await self.bot.multisql(line)
                     x = [str(dict(i)) for i in output]
                     out = ("\n".join(x) or "No output").replace("@", "@\u200b")
                     outputs.append(f"{lineId}: {out}")
