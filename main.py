@@ -42,12 +42,11 @@ class Flasher(commands.Bot):
     
     
     async def sql(self, code, *args, parse=False):
-        outputs = []
         async with self.db.acquire() as connection:
             output = await connection.fetch(code, *args)
             await self.db.release(connection)
         if not parse:
-            return outputs
+            return output
         else:
             return [dict(i) for i in output]
     

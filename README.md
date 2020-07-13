@@ -25,9 +25,9 @@ Flasher bot is Discord bot writed on [discord.py](https://github.com/Rapptz/disc
 # Run
 
 * Create PSQL database
-  * Run commands in backup.psql (`\i /path/to/backup.psql`)
+  * Run commands in backup.psql (`\i /path/to/execute.psql`)
 * Install required pip modules (`pip3 install -r requirments.txt`)
-* Fill config.json
+* Fill `config.json`,`example_flagConfig.json` (using `example_config.json`, `example_flagConfig.json`)
 * Run using `python3 main.py`
 
 
