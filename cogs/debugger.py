@@ -12,10 +12,10 @@ class Message_Log(commands.Cog):
 
 
     @commands.Cog.listener()
-    @commands.guild_only()
     async def on_message(self,msg):
-
-        if not msg.guild: id = msg.author.id
+        
+        
+        if not msg.guild: return
         else: id = msg.guild.id
 
         if (id in self.bot.config["debugIgnoreGuilds"] 
