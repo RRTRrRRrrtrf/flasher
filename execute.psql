@@ -118,7 +118,7 @@ COPY public.dashboard (author, "time", topic, content) FROM stdin;
 COPY public.ideas (id, topic, descriprion, author, "time") FROM stdin;
 \.
 
-
+-- Nothing changed
 --
 -- Data for Name: prefixes; Type: TABLE DATA; Schema: public; Owner: tl
 --
