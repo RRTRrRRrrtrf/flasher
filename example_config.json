@@ -1,0 +1,24 @@
+{
+    "token":"YOUR MAIN BOT TOKEN AS STRING",
+    "ideaChannel": "CHANNEL ID (FOR COMMAND f.idea) AS INTEGER",
+    "bugReportChannel":"GUILD CHANNEL ID FOR BUG REPORT AS INTEGER (for utils.error_handler)",
+    "debugChannel":"CHANNEL ID AS INTEGER (FOR cogs.debugger)",
+    "dashboardChannel": "CHANNEL ID FOR f.dashboardAdd f.ptbAdd AS INTEGER",
+    "blacklistStatus": "USER BLACKLIST STATUS AS BOOLEAN",
+    "debugIgnoreGuilds":["GUILD IDs PRESENTED AS INTEGER (ONLY FOR cogs.debugger)"],
+    "prefix":"PLACE HERE YOUR BOT PREFIX AS STRING",
+    "sqlPath":"PLACE HERE PATH TO PSQL BASE LIKE postgresql://user:password@ip:port/db_name",
+    "supportServerInvite":"Place here server invite",
+    "extensions":["jishaku",
+    "cogs.text_tools", 
+    "utils.error_handler",
+    "cogs.user_tools",
+    "cogs.img_tools",
+    "cogs.other",
+    "cogs.number_tools",
+    "cogs.debugger" 
+    ],
+    "customOwnerList":["IDs OF USERS WHO CAN USE OWNER-ONLY COMMANDS AS INTEGER",
+    "LEAVE BLANK EMPTY IF ONLY BOT OWNER CAN USE OWNER-ONLY COMMANDS"]
+}
+
