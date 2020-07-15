@@ -82,20 +82,18 @@ class Other(commands.Cog):
         :warning: Бот чуствителен к регистру символов
         :memo: Исполнение комманды без указаного перефикса покажет вам какой у вас сейчас префикс """
 
-        server_data = await self.bot.sql(f'SELECT * FROM prefixes WHERE id={ctx.guild.id}', parse=True)
-        user_data = await self.bot.sql(f'SELECT * FROM prefixes WHERE id={ctx.author.id}', parse=True)
+        server_data = await self.bot.sql(f'SELECT * FROM prefixes WHERE id={ctx.guild.id}')
+        user_data = await self.bot.sql(f'SELECT * FROM prefixes WHERE id={ctx.author.id}')
         
-        if not server_data: # [] case
+        if not server_data: # <Record > case
             server_prefix = self.bot.config["prefix"]
         else:
-            server_prefix = server_data[0]
-            server_prefix = server_prefix["value"]
+            server_prefix = server_data["value"]
 
-        if not user_data: # [] case
+        if not user_data: # <Record > case
             user_prefix = self.bot.config["prefix"]
         else:
-            user_prefix = user_data[0]
-            user_prefix = user_prefix["value"]
+            user_prefix = user_data["value"]
 
         embed = discord.Embed(description='На сервере установлен префикс **`%s`**' % server_prefix,color=discord.Colour.gold())
         embed.add_field(name='Персональный префикс', value='У вас установлен префикс **`%s`**' % user_prefix)

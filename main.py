@@ -45,10 +45,11 @@ class Flasher(commands.Bot):
         async with self.db.acquire() as connection:
             output = await connection.fetch(code, *args)
             await self.db.release(connection)
-        if not parse:
-            return output
+        #print(repr(output)) # For debug
+        if len(output) == 1:
+            return output[0]
         else:
-            return [dict(i) for i in output]
+            return output
     
     
     async def multisql(self, code, *args, parse=False):
@@ -66,21 +67,19 @@ class Flasher(commands.Bot):
 
 
     async def get_prefix(self, msg):
-        data = await self.sql(f'SELECT * FROM prefixes WHERE id={msg.author.id}', parse=True)
-        if not data: # [] case
+        data = await self.sql(f'SELECT * FROM prefixes WHERE id={msg.author.id}')
+        if not data: # <Record > case
             prefix = commands.when_mentioned_or(self.config["prefix"])
         else:
-            record = data[0]
-            prefix = commands.when_mentioned_or(record['value'])
+            prefix = commands.when_mentioned_or(data['value'])
             return prefix(self,msg)
 
         if msg.guild:
-            data = await self.sql(f'SELECT * FROM prefixes WHERE id={msg.guild.id}', parse=True)
-            if not data: # [] case
+            data = await self.sql(f'SELECT * FROM prefixes WHERE id={msg.guild.id}')
+            if not data: # <Record > case
                 prefix = commands.when_mentioned_or(self.config["prefix"])
             else:
-                record = data[0]
-                prefix = commands.when_mentioned_or(record['value'])
+                prefix = commands.when_mentioned_or(data['value'])
         return prefix(self, msg)
 
 

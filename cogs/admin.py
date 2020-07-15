@@ -140,7 +140,7 @@ class Admin(commands.Cog):
             if i == 4:
                 raise TooManyTries()            
 
-        write_number = len(await self.bot.sql('SELECT * FROM dashboard;',parse=True)) + 1
+        write_number = len(await self.bot.sql('SELECT * FROM dashboard')) + 1
         await self.bot.sql(f'INSERT INTO dashboard (author, topic, content, time) VALUES ($3,$1,$2,$4)',
             topic,   description,   ctx.author.id,  int(time.time()))
 
