@@ -2,11 +2,12 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 9.5.21
--- Dumped by pg_dump version 9.5.21
+-- Dumped from database version 10.12 (Ubuntu 10.12-0ubuntu0.18.04.1)
+-- Dumped by pg_dump version 10.12 (Ubuntu 10.12-0ubuntu0.18.04.1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
@@ -34,24 +35,13 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
--- Name: blacklist; Type: TABLE; Schema: public; Owner: tl
---
-
-CREATE TABLE public.blacklist (
-    id bigint
-);
-
-
-ALTER TABLE public.blacklist OWNER TO tl;
-
---
 -- Name: dashboard; Type: TABLE; Schema: public; Owner: tl
 --
 
 CREATE TABLE public.dashboard (
     author bigint NOT NULL,
-    "time" int NOT NULL,
     topic character varying(60) NOT NULL,
+    "time" integer,
     content character varying(512),
     CONSTRAINT dashboard_author_check CHECK ((author > 0)),
     CONSTRAINT dashboard_author_check1 CHECK ((16 < char_length(((author)::character varying)::text))),
@@ -62,23 +52,120 @@ CREATE TABLE public.dashboard (
 ALTER TABLE public.dashboard OWNER TO tl;
 
 --
+-- Name: eco; Type: TABLE; Schema: public; Owner: tl
+--
+
+CREATE TABLE public.eco (
+    id bigint NOT NULL,
+    coins numeric,
+    CONSTRAINT eco_coins_check CHECK ((coins >= (0)::numeric)),
+    CONSTRAINT eco_id_check CHECK ((id > 0)),
+    CONSTRAINT eco_id_check1 CHECK ((16 < char_length(((id)::character varying)::text))),
+    CONSTRAINT eco_id_check2 CHECK ((char_length(((id)::character varying)::text) < 21))
+);
+
+
+ALTER TABLE public.eco OWNER TO tl;
+
+--
 -- Name: ideas; Type: TABLE; Schema: public; Owner: tl
 --
 
 CREATE TABLE public.ideas (
-    id integer NOT NULL,
     topic character varying(60),
-    description character varying(512) NOT NULL,
     author bigint NOT NULL,
-    "time" int NOT NULL,
+    description character varying(512),
+    "time" integer,
     CONSTRAINT ideas_author_check CHECK ((author > 0)),
     CONSTRAINT ideas_author_check1 CHECK ((16 < char_length(((author)::character varying)::text))),
-    CONSTRAINT ideas_author_check2 CHECK ((22 > char_length(((author)::character varying)::text))),
-    CONSTRAINT ideas_id_check CHECK ((id > 0))
+    CONSTRAINT ideas_author_check2 CHECK ((22 > char_length(((author)::character varying)::text)))
 );
 
 
 ALTER TABLE public.ideas OWNER TO tl;
+
+--
+-- Name: offences; Type: TABLE; Schema: public; Owner: tl
+--
+
+CREATE TABLE public.offences (
+    id bigint NOT NULL,
+    type smallint NOT NULL,
+    reason character varying(512),
+    moderator bigint NOT NULL,
+    CONSTRAINT offences_id_check CHECK ((16 < char_length(((id)::character varying)::text))),
+    CONSTRAINT offences_id_check1 CHECK ((char_length(((id)::character varying)::text) < 21)),
+    CONSTRAINT offences_moderator_check CHECK ((16 < char_length(((moderator)::character varying)::text))),
+    CONSTRAINT offences_moderator_check1 CHECK ((char_length(((moderator)::character varying)::text) < 21)),
+    CONSTRAINT offences_type_check CHECK ((type < 5))
+);
+
+
+ALTER TABLE public.offences OWNER TO tl;
+
+--
+-- Name: offences_id_seq; Type: SEQUENCE; Schema: public; Owner: tl
+--
+
+CREATE SEQUENCE public.offences_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.offences_id_seq OWNER TO tl;
+
+--
+-- Name: offences_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: tl
+--
+
+ALTER SEQUENCE public.offences_id_seq OWNED BY public.offences.id;
+
+
+--
+-- Name: offences_moderator_seq; Type: SEQUENCE; Schema: public; Owner: tl
+--
+
+CREATE SEQUENCE public.offences_moderator_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.offences_moderator_seq OWNER TO tl;
+
+--
+-- Name: offences_moderator_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: tl
+--
+
+ALTER SEQUENCE public.offences_moderator_seq OWNED BY public.offences.moderator;
+
+
+--
+-- Name: offences_type_seq; Type: SEQUENCE; Schema: public; Owner: tl
+--
+
+CREATE SEQUENCE public.offences_type_seq
+    AS smallint
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.offences_type_seq OWNER TO tl;
+
+--
+-- Name: offences_type_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: tl
+--
+
+ALTER SEQUENCE public.offences_type_seq OWNED BY public.offences.type;
+
 
 --
 -- Name: prefixes; Type: TABLE; Schema: public; Owner: tl
@@ -86,7 +173,7 @@ ALTER TABLE public.ideas OWNER TO tl;
 
 CREATE TABLE public.prefixes (
     id bigint NOT NULL,
-    value character varying(7) NOT NULL,
+    value character varying(7) DEFAULT 'f.'::character varying NOT NULL,
     CONSTRAINT prefixes_id_check CHECK ((id > 0)),
     CONSTRAINT prefixes_id_check1 CHECK ((16 < char_length(((id)::character varying)::text))),
     CONSTRAINT prefixes_id_check2 CHECK ((22 > char_length(((id)::character varying)::text)))
@@ -96,45 +183,59 @@ CREATE TABLE public.prefixes (
 ALTER TABLE public.prefixes OWNER TO tl;
 
 --
--- Data for Name: blacklist; Type: TABLE DATA; Schema: public; Owner: tl
+-- Name: offences id; Type: DEFAULT; Schema: public; Owner: tl
 --
 
-COPY public.blacklist (id) FROM stdin;
-\.
-
-
---
--- Data for Name: dashboard; Type: TABLE DATA; Schema: public; Owner: tl
---
-
-COPY public.dashboard (author, "time", topic, content) FROM stdin;
-\.
+ALTER TABLE ONLY public.offences ALTER COLUMN id SET DEFAULT nextval('public.offences_id_seq'::regclass);
 
 
 --
--- Data for Name: ideas; Type: TABLE DATA; Schema: public; Owner: tl
+-- Name: offences type; Type: DEFAULT; Schema: public; Owner: tl
 --
 
-COPY public.ideas (id, topic, descriprion, author, "time") FROM stdin;
-\.
-
--- Nothing changed
---
--- Data for Name: prefixes; Type: TABLE DATA; Schema: public; Owner: tl
---
-
-COPY public.prefixes (id, value) FROM stdin;
-\.
+ALTER TABLE ONLY public.offences ALTER COLUMN type SET DEFAULT nextval('public.offences_type_seq'::regclass);
 
 
 --
--- Name: SCHEMA public; Type: ACL; Schema: -; Owner: postgres
+-- Name: offences moderator; Type: DEFAULT; Schema: public; Owner: tl
 --
 
-REVOKE ALL ON SCHEMA public FROM PUBLIC;
-REVOKE ALL ON SCHEMA public FROM postgres;
-GRANT ALL ON SCHEMA public TO postgres;
-GRANT ALL ON SCHEMA public TO PUBLIC;
+ALTER TABLE ONLY public.offences ALTER COLUMN moderator SET DEFAULT nextval('public.offences_moderator_seq'::regclass);
+
+
+--
+-- Name: offences_id_seq; Type: SEQUENCE SET; Schema: public; Owner: tl
+--
+
+SELECT pg_catalog.setval('public.offences_id_seq', 1, false);
+
+
+--
+-- Name: offences_moderator_seq; Type: SEQUENCE SET; Schema: public; Owner: tl
+--
+
+SELECT pg_catalog.setval('public.offences_moderator_seq', 1, false);
+
+
+--
+-- Name: offences_type_seq; Type: SEQUENCE SET; Schema: public; Owner: tl
+--
+
+SELECT pg_catalog.setval('public.offences_type_seq', 1, false);
+
+
+--
+-- Name: eco_id_idx; Type: INDEX; Schema: public; Owner: tl
+--
+
+CREATE UNIQUE INDEX eco_id_idx ON public.eco USING btree (id);
+
+
+--
+-- Name: prefixes_id_idx; Type: INDEX; Schema: public; Owner: tl
+--
+
+CREATE UNIQUE INDEX prefixes_id_idx ON public.prefixes USING btree (id);
 
 
 --

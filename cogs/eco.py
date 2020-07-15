@@ -9,7 +9,7 @@ class Economy(commands.Cog):
     def __init__(self, bot):
         
         self.bot = bot
-        self.commands_in_hour = 100
+        self.commands_in_hour = 0
         self.Treasury_id = 10000000000000000 # If changed do INSERT INTO eco VALUES (new_id_here,0)
 
 
@@ -42,8 +42,10 @@ class Economy(commands.Cog):
         percentage = randint(1,8)/100 # 1-8% 
         tax_percentage = randint(10,45)/100 # 10-45% of 1-8% treasury 
         
-        treasury_coins = (await self.bot.sql(
-            "SELECT * FROM eco WHERE id=$1;", self.Treasury_id))['coins']
+        treasury_coins = await self.bot.sql(
+            "SELECT * FROM eco WHERE id=$1;", self.Treasury_id)
+        treasury_coins = float(treasury_coins['coins'])
+        
         has = (await self.bot.sql(
             "SELECT * FROM eco WHERE id=$1;", ctx.author.id))
         
@@ -51,7 +53,7 @@ class Economy(commands.Cog):
             await self.bot.sql('INSERT INTO eco VALUES ($1, 0)', ctx.author.id)
             has = 0
         else:
-            has = has['coins']
+            has = float(has['coins'])
         
         full = treasury_coins * percentage
         deFacto = full - full*tax_percentage
