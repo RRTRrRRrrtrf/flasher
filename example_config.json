@@ -20,6 +20,8 @@
     "cogs.eco"
     ],
     "customOwnerList":["IDs OF USERS WHO CAN USE OWNER-ONLY COMMANDS AS INTEGER",
-    "LEAVE BLANK EMPTY IF ONLY BOT OWNER CAN USE OWNER-ONLY COMMANDS"]
+    "LEAVE BLANK EMPTY IF ONLY BOT OWNER CAN USE OWNER-ONLY COMMANDS"],
+    "workPercentage":[1,8,100],
+    "taxPercentage":[10,45,100]
 }
 

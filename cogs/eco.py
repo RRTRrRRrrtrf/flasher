@@ -40,8 +40,9 @@ class Economy(commands.Cog):
     @commands.cooldown(1,3600, commands.BucketType.user)
     async def work(self,ctx):
         """Заработайте Flasher Coins"""
-        percentage = randint(1,4)/100 # 1-8% 
-        tax_percentage = randint(10,45)/100 # 10-45% of 1-8% treasury 
+        cnfg = self.bot.config
+        percentage = randint(cnfg['workPercentage'][0],cnfg['workPercentage'][1])/cnfg['workPercentage'][2] # Standart: 1-8 /100 -> 1-8% 
+        tax_percentage = randint(cnfg['taxPercentage'][0],cnfg['taxPercentage'][1])/cnfg['taxPercentage'][2] 
         
         treasury_coins = await self.bot.sql(
             "SELECT * FROM eco WHERE id=$1;", self.Treasury_id)
