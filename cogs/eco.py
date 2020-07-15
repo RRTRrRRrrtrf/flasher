@@ -7,33 +7,33 @@ class Economy(commands.Cog):
     """Команды экономики"""
 
     def __init__(self, bot):
-        
+        self.used_commands = 0
         self.bot = bot
-        self.commands_in_hour = 0
         self.Treasury_id = 10000000000000000 # If changed do INSERT INTO eco VALUES (new_id_here,0)
-
+        self.anti_spam.start()
 
 
     @commands.Cog.listener()
-    async def on_command_completion(self, ctx: commands.Context):
-        self.commands_in_hour += 1
-
-
-
-    @tasks.loop(hours=1)
-    async def money_create(self):
+    async def on_command(self, ctx: commands.Context):
         
-        coins_to_add = round(self.commands_in_hour / 20)
-        status_now = await self.bot.sql(
-            "SELECT * FROM eco WHERE id=$1;", self.Treasury_id)
+        try:
+            if self.bot.config['ecoGrowthDisable']: return
+        except KeyError: pass
         
-        coins_to_add += status_now[0]
-        await self.bot.sql(
-            "UPDATE eco SET coins=$2 WHERE id=$1;", self.Treasury_id, coins_to_add)
+        if self.used_commands > 200: return
+        self.used_commands += 1
+
+        coins_to_add = 1 / 60 
+        status_now = await self.bot.sql("SELECT * FROM eco WHERE id=$1;", self.Treasury_id)
         
-        self.commands_in_hour = 0
+        coins_to_add += float(status_now['coins'])
+        await self.bot.sql("UPDATE eco SET coins=$2 WHERE id=$1;", self.Treasury_id, coins_to_add)
 
 
+
+    @tasks.loop(hours=6)
+    async def anti_spam(self):
+        self.used_commands = 0
 
     @commands.command()
     @commands.cooldown(1,3600, commands.BucketType.user)
@@ -63,13 +63,39 @@ class Economy(commands.Cog):
         await self.bot.sql("UPDATE eco SET coins=$1 WHERE id=$2", 
                            has+deFacto, ctx.author.id)
         
-        embed = discord.Embed(title='На баланс засчитано %s FlC' % deFacto,
-                              description=f"""Заработок: {full},
-                              Налоговый сбор {full-deFacto},
-                              Состояние баланса {deFacto+has}.""",
+        embed = discord.Embed(title='На баланс засчитано %s FlC' % str(deFacto)[:9],
+                              description=f"""Зароботок: {str(full)[:9]},
+                              Налоговый сбор {str(full-deFacto)[:9]},
+                              Состояние баланса {str(deFacto+has)[:9]}.""",
                               color=discord.Colour.green())
         
         await ctx.send(embed=embed)
+
+
+
+    @commands.command(aliases=['bal','coins','money'])
+    async def balance(self,ctx,user: discord.User = None):
+        """Узнать ваш или чужой баланс"""
+        
+        if not user: user = ctx.author
+        
+        has = await self.bot.sql("SELECT * FROM eco WHERE id=$1;", user.id)
+        treasury_coins = float((await self.bot.sql("SELECT * FROM eco WHERE id=$1;", self.Treasury_id))['coins'])
+        all_coins = sum( ( float(x['coins']) for x in await self.bot.sql('SELECT coins FROM eco') ) )
+        
+        if not has: # [] case
+            await self.bot.sql('INSERT INTO eco VALUES ($1, 0)', user.id)
+            has = 0
+        else:
+            has = str(has['coins'])[:9]
+        
+        await ctx.send(f"> Баланс {user.name} - **`{str(has)[:9]}`**\n"
+                       f"> Баланс казны - `{str(treasury_coins)[:9]}`\n"
+                       f"> Существует Flasher Coins - `{str(all_coins)[:9]}`\n"
+                       f"> Все Flasher Coins (кроме казны) - `{str(all_coins - treasury_coins)[:9]}`")
+        
+    
+    
 
 def setup(bot):
     bot.add_cog(Economy(bot))
