@@ -5,6 +5,9 @@ from naomi_paginator import Paginator
 import os
 import humanize
 import datetime
+import time
+
+
 
 class Admin(commands.Cog):
     """Комманды для владельца бота"""

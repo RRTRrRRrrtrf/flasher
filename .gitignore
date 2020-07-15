@@ -1,5 +1,6 @@
 backup.psql
-config.json
+*.json
+*.log
 .mypy_cache
 .vscode
 __pycache__
