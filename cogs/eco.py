@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands, tasks
 from time import time
 from random import randint
+from typing import Union
 
 class Economy(commands.Cog):
     """Команды экономики"""
@@ -39,7 +40,7 @@ class Economy(commands.Cog):
     @commands.cooldown(1,3600, commands.BucketType.user)
     async def work(self,ctx):
         """Заработайте Flasher Coins"""
-        percentage = randint(1,8)/100 # 1-8% 
+        percentage = randint(1,4)/100 # 1-8% 
         tax_percentage = randint(10,45)/100 # 10-45% of 1-8% treasury 
         
         treasury_coins = await self.bot.sql(
@@ -94,8 +95,49 @@ class Economy(commands.Cog):
                        f"> Существует Flasher Coins - `{str(all_coins)[:9]}`\n"
                        f"> Все Flasher Coins (кроме казны) - `{str(all_coins - treasury_coins)[:9]}`")
         
-    
-    
+        
+    @commands.command(aliases=['gift','send'])
+    async def pay(self,ctx,user: Union[discord.User, str], amount: float):
+        """Отправить Flasher Coins кому либо"""
+        if type(user) is str:
+            list = ['kazna','казна','treasury','tax','work','налог']
+            if user not in list:
+                return await ctx.send('> Укажите правильного пользователя или "Казна" для оплаты в казну')
+            else:
+                id = self.Treasury_id
+        else:
+            id = user.id
+            
+        has = await self.bot.sql("SELECT * FROM eco WHERE id=$1;", ctx.author.id)
+        topay = amount * 1.15 # 15% tax
+        
+        if not has: # [] case
+            await self.bot.sql('INSERT INTO eco VALUES ($1, 0)', ctx.author.id)
+            has = 0
+        else:
+            has = float(has['coins'])
+        
+        if topay > has:
+            return await ctx.send('Недостаточно монет для проведения платежа\n'
+                    f'> **Вам необходимо ещё** `{topay - has}` монет\n'
+                    f'> Налоговый сбор составляет {str(topay-amount)[:6]}' )
+        
+        
+        hasReciever = await self.bot.sql("SELECT * FROM eco WHERE id=$1;", id)
+        
+        if not has: # [] case
+            await self.bot.sql('INSERT INTO eco VALUES ($1, 0)', id)
+            hasReciever = 0
+        else:
+            hasReciever = float(hasReciever['coins'])
+        
+        await self.bot.sql("UPDATE eco SET coins=$2 WHERE id=$1", ctx.author.id, has-topay)
+        await self.bot.sql("INSERT INTO eco (id,coins) VALUES ($1, $2) "
+                            "ON CONFLICT (id) DO UPDATE SET coins=EXCLUDED.coins;", id, hasReciever + amount)
+        
+        await ctx.send('> OK')
+
+
 
 def setup(bot):
     bot.add_cog(Economy(bot))
