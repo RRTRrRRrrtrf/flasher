@@ -41,7 +41,7 @@ class Flasher(commands.Bot):
     
     
     
-    async def sql(self, code, *args, parse=False):
+    async def sql(self, code, *args):
         async with self.db.acquire() as connection:
             output = await connection.fetch(code, *args)
             await self.db.release(connection)
