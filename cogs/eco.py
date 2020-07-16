@@ -17,10 +17,6 @@ class Economy(commands.Cog):
     @commands.Cog.listener()
     async def on_command(self, ctx: commands.Context):
         
-        try:
-            if self.bot.config['ecoGrowthDisable']: return
-        except KeyError: pass
-        
         if self.used_commands > 200: return
         self.used_commands += 1
 
@@ -65,10 +61,10 @@ class Economy(commands.Cog):
         await self.bot.sql("UPDATE eco SET coins=$1 WHERE id=$2", 
                            has+deFacto, ctx.author.id)
         
-        embed = discord.Embed(title='На баланс засчитано %s FlC' % str(deFacto)[:9],
-                              description=f"""Зароботок: {str(full)[:9]},
-                              Налоговый сбор {str(full-deFacto)[:9]},
-                              Состояние баланса {str(deFacto+has)[:9]}.""",
+        embed = discord.Embed(title='На баланс засчитано %s FlC' % round(deFacto, 6),
+                              description=f"""Зароботок: {round(full, 6)},
+                              Налоговый сбор {round(full-deFacto, 6)},
+                              Состояние баланса {round(deFacto+has, 6)}.""",
                               color=discord.Colour.green())
         
         await ctx.send(embed=embed)
@@ -89,28 +85,30 @@ class Economy(commands.Cog):
             await self.bot.sql('INSERT INTO eco VALUES ($1, 0)', user.id)
             has = 0
         else:
-            has = str(has['coins'])[:9]
+            has = float(has['coins'])
         
-        await ctx.send(f"> Баланс {user.name} - **`{str(has)[:9]}`**\n"
-                       f"> Баланс казны - `{str(treasury_coins)[:9]}`\n"
-                       f"> Существует Flasher Coins - `{str(all_coins)[:9]}`\n"
-                       f"> Все Flasher Coins (кроме казны) - `{str(all_coins - treasury_coins)[:9]}`")
+        await ctx.send(f"> Баланс {user.name} - **`{round(has,6)}`**\n"
+                       f"> Баланс казны - `{round(treasury_coins,6)}`\n"
+                       f"> Существует Flasher Coins - `{round(all_coins,6)}`\n"
+                       f"> Все Flasher Coins (кроме казны) - `{round(all_coins - treasury_coins, 6)}`")
         
         
     @commands.command(aliases=['gift','send'])
     async def pay(self,ctx,user: Union[discord.User, str], amount: float):
         """Отправить Flasher Coins кому либо"""
+        topay = amount * 1.15 # 15% tax
+        
         if type(user) is str:
             list = ['kazna','казна','treasury','tax','work','налог']
             if user not in list:
                 return await ctx.send('> Укажите правильного пользователя или "Казна" для оплаты в казну')
             else:
                 id = self.Treasury_id
+                topay = amount
         else:
             id = user.id
             
         has = await self.bot.sql("SELECT * FROM eco WHERE id=$1;", ctx.author.id)
-        topay = amount * 1.15 # 15% tax
         
         if not has: # [] case
             await self.bot.sql('INSERT INTO eco VALUES ($1, 0)', ctx.author.id)
