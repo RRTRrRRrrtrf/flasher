@@ -153,6 +153,4 @@ class Flasher(commands.Bot):
 if __name__ == "__main__":
     data = json.loads(open('config.json', 'r').read())
     bot = Flasher()
-    try:discord.gateway.IdentifyConfig.browser = 'Discord Android' # pylint: disable=no-member
-    except AttributeError:pass
     bot.run(data['token'], reconnect=True, bot=True)

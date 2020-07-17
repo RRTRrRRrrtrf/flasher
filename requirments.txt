@@ -8,3 +8,4 @@ jishaku
 discord.py[voice]
 git+https://github.com/Naomi-bot-open-source/naomi-paginator 
 discord.py>=1.3.2
+aiohttp
