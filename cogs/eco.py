@@ -14,6 +14,14 @@ class Economy(commands.Cog):
         self.anti_spam.start()
 
 
+    async def initUser(self, user: discord.User , sqlResult):
+        if not sqlResult: # [] case
+            await self.bot.sql('INSERT INTO eco VALUES ($1, 0)', user.id)
+            return 0
+        else:
+            return float(sqlResult['coins'])
+
+
     @commands.Cog.listener()
     async def on_command(self, ctx: commands.Context):
         
@@ -46,12 +54,7 @@ class Economy(commands.Cog):
         
         has = (await self.bot.sql(
             "SELECT * FROM eco WHERE id=$1;", ctx.author.id))
-        
-        if not has: # [] case
-            await self.bot.sql('INSERT INTO eco VALUES ($1, 0)', ctx.author.id)
-            has = 0
-        else:
-            has = float(has['coins'])
+        has = await self.initUser(ctx.author, has)
         
         full = treasury_coins * percentage
         deFacto = full - full*tax_percentage
@@ -81,11 +84,7 @@ class Economy(commands.Cog):
         treasury_coins = float((await self.bot.sql("SELECT * FROM eco WHERE id=$1;", self.Treasury_id))['coins'])
         all_coins = sum( ( float(x['coins']) for x in await self.bot.sql('SELECT coins FROM eco') ) )
         
-        if not has: # [] case
-            await self.bot.sql('INSERT INTO eco VALUES ($1, 0)', user.id)
-            has = 0
-        else:
-            has = float(has['coins'])
+        has = await self.initUser(ctx.author, has)
         
         await ctx.send(f"> Баланс {user.name} - **`{round(has,6)}`**\n"
                        f"> Баланс казны - `{round(treasury_coins,6)}`\n"
@@ -101,7 +100,7 @@ class Economy(commands.Cog):
         if type(user) is str:
             list = ['kazna','казна','treasury','tax','work','налог']
             if user not in list:
-                return await ctx.send('> Укажите правильного пользователя или "Казна" для оплаты в казну')
+                return await ctx.send('> Укажите правильного пользователя или "Казна" для оплаты в казну :no_entry:')
             else:
                 id = self.Treasury_id
                 topay = amount
@@ -109,26 +108,22 @@ class Economy(commands.Cog):
             id = user.id
             
         has = await self.bot.sql("SELECT * FROM eco WHERE id=$1;", ctx.author.id)
-        
-        if not has: # [] case
-            await self.bot.sql('INSERT INTO eco VALUES ($1, 0)', ctx.author.id)
-            has = 0
-        else:
-            has = float(has['coins'])
+        has = await self.initUser(ctx.author, has)
         
         if topay > has:
-            return await ctx.send('Недостаточно монет для проведения платежа\n'
+            return await ctx.send('Недостаточно монет для проведения платежа :no_entry:\n'
                     f'> **Вам необходимо ещё** `{topay - has}` монет\n'
                     f'> Налоговый сбор составляет {str(topay-amount)[:6]}' )
-        
-        
+        if user.id == ctx.author.id:
+            return await ctx.send('> Оплата в казну происходит непосредсвенно через указание '
+                'в поле "пользователь" слова казна, не надо платить себе что бы внести туда платёж :no_entry:')
+        if user.bot:
+            return await ctx.send('> Боту не нужны ваши деньги :no_entry:')
+        if amount < 0:
+            return await ctx.send('> Не пытайтесь украсть чужие деньги :no_entry:')
+            
         hasReciever = await self.bot.sql("SELECT * FROM eco WHERE id=$1;", id)
-        
-        if not hasReciever: # [] case
-            await self.bot.sql('INSERT INTO eco VALUES ($1, 0)', id)
-            hasReciever = 0
-        else:
-            hasReciever = float(hasReciever['coins'])
+        hasReciever = await self.initUser(user, hasReciever)
         
         await self.bot.sql("UPDATE eco SET coins=$2 WHERE id=$1", ctx.author.id, has-topay)
         await self.bot.sql("INSERT INTO eco (id,coins) VALUES ($1, $2) "
