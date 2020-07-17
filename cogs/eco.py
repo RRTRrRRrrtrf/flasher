@@ -80,11 +80,14 @@ class Economy(commands.Cog):
         
         if not user: user = ctx.author
         
+        if user.bot:
+            return await ctx.send('> Балансы для ботов предусмотрены не были, как и то что ботов будут обворовывать...')
+        і
         has = await self.bot.sql("SELECT * FROM eco WHERE id=$1;", user.id)
         treasury_coins = float((await self.bot.sql("SELECT * FROM eco WHERE id=$1;", self.Treasury_id))['coins'])
         all_coins = sum( ( float(x['coins']) for x in await self.bot.sql('SELECT coins FROM eco') ) )
         
-        has = await self.initUser(ctx.author, has)
+        has = await self.initUser(user, has)
         
         await ctx.send(f"> Баланс {user.name} - **`{round(has,6)}`**\n"
                        f"> Баланс казны - `{round(treasury_coins,6)}`\n"
@@ -114,6 +117,8 @@ class Economy(commands.Cog):
             return await ctx.send('Недостаточно монет для проведения платежа :no_entry:\n'
                     f'> **Вам необходимо ещё** `{topay - has}` монет\n'
                     f'> Налоговый сбор составляет {str(topay-amount)[:6]}' )
+        if amount < 0 and user.bot: # easter egg
+            return await ctx.send('Ну это уже верх наглости, воровать, так ещё и у бота! Я вызываю полицию.')
         if user.id == ctx.author.id:
             return await ctx.send('> Оплата в казну происходит непосредсвенно через указание '
                 'в поле "пользователь" слова казна, не надо платить себе что бы внести туда платёж :no_entry:')
