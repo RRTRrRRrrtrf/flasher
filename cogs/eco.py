@@ -124,7 +124,7 @@ class Economy(commands.Cog):
         
         hasReciever = await self.bot.sql("SELECT * FROM eco WHERE id=$1;", id)
         
-        if not has: # [] case
+        if not hasReciever: # [] case
             await self.bot.sql('INSERT INTO eco VALUES ($1, 0)', id)
             hasReciever = 0
         else:
