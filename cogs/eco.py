@@ -28,7 +28,7 @@ class Economy(commands.Cog):
         if self.used_commands > 200: return
         self.used_commands += 1
 
-        coins_to_add = 1 / 60 
+        coins_to_add = self.bot.config['commandCost']
         status_now = await self.bot.sql("SELECT * FROM eco WHERE id=$1;", self.Treasury_id)
         
         coins_to_add += float(status_now['coins'])
@@ -82,7 +82,6 @@ class Economy(commands.Cog):
         
         if user.bot:
             return await ctx.send('> Балансы для ботов предусмотрены не были, как и то что ботов будут обворовывать...')
-        і
         has = await self.bot.sql("SELECT * FROM eco WHERE id=$1;", user.id)
         treasury_coins = float((await self.bot.sql("SELECT * FROM eco WHERE id=$1;", self.Treasury_id))['coins'])
         all_coins = sum( ( float(x['coins']) for x in await self.bot.sql('SELECT coins FROM eco') ) )
