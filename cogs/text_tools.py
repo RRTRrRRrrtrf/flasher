@@ -154,16 +154,22 @@ class Text_tools(commands.Cog):
 
     @commands.command(aliases=['db'])
     async def dashboard(self,ctx):
-        """Просмотр информации про бота"""
-        data = await self.bot.sql('SELECT * FROM dashboard;', parse=True)
-        data = data[::-1]
+        """Последние 15 записей с сервера поддержки."""
+        data = await self.bot.sql('SELECT * from dashboard ORDER BY time DESC LIMIT 15;')
         p = Paginator(ctx)
+        
         for page in data:
             embed = discord.Embed(title=page['topic'],
                 description=page['content'],
                 timestamp=datetime.datetime.fromtimestamp(page['time']),
                 color=random.randint(0x000000,0xFFFFFF))
             p.add_page(embed)
+            
+        embed = discord.Embed(title='Вы просмотрели последние записи',
+            description='Последние 15 записей просмотрены',
+            color=random.randint(0x000000,0xFFFFFF))
+        p.add_page(embed)
+        
         await p.call_controller()
 
 
