@@ -1,7 +1,6 @@
 import discord
 from discord.ext import commands
 import jishaku
-from naomi_paginator import Paginator
 import os
 import humanize
 import datetime
@@ -41,56 +40,54 @@ class Admin(commands.Cog):
     @commands.command(name="sql", hidden=True)
     async def sql(self, ctx, *, code: jishaku.codeblocks.codeblock_converter):
         """Исполнить запрос к PostgreSQL"""
-
-        try:
-            outputs = []
-            lineId = 0
-
-            for line in code.content.split("\n"):
-                if line.replace(" ", "") != "":
-
-                    output = await self.bot.multisql(line)
-                    x = [str(dict(i)) for i in output]
-                    out = ("\n".join(x) or "No output").replace("@", "@\u200b")
-                    outputs.append(f"{lineId}: {out}")
-                    lineId += 1
-
-            out = "\n".join(outputs)
-
-            if len(out) >= 1900:
-
-                p = Paginator(ctx)
-                pages = [out[i : i + 1900] for i in range(0, len(out), 1900)]
-                for page in pages:
-                    await p.add_page(discord.Embed(description=page))
-
-                await p.call_controller()
-
-            else:
-                await ctx.send(out)
-        except Exception as e:
-            await ctx.send(f"{type(e).__name__}:  {e}")
-
-
+        requests = code.content.split(';')
+        out = []
+        line = 0
+        returned = 'RESULT\n\n'
+        
+        for request in requests:
+            if not request: # '' case
+                continue
+            
+            try:
+                answer = await self.bot.sql(request)
+            
+            except Exception as e:
+                answer = f'{type(e).__name__}:  {e}'
+            
+            out.append(answer)
+        
+        for result in out:
+            returned += f'Line {line}: ```{result}```\n\n'
+            line += 1
+        
+        if len(returned) > 1997:
+            returned = returned[:1997] + '...'
+            
+        await ctx.send(returned)
+            
+            
+            
+            
     @commands.command(hidden=True)
     async def sqlBackup(self,ctx):
         """Создать резервную копию базы данных"""
-        reporter = ctx.author
         os.system(f'pg_dump {self.bot.config["sqlPath"]} > backup.psql')
-        await reporter.send(f'Backup loaded: ' + humanize.naturalsize(os.path.getsize('backup.psql')),
+        
+        await ctx.author.send(f'Backup loaded: ' + humanize.naturalsize(os.path.getsize('backup.psql')),
             file=discord.File('backup.psql'))
     
     
     
     @commands.command(hidden=True)
     async def msg(self,ctx,*,textArg):
-        '''Отправить сообщение от имени бота
-
-        '''
-    
-        await ctx.send(textArg.replace(r' \ ',''))
-        try:await ctx.message.delete()
-        except:pass
+        '''Отправить сообщение от имени бота'''
+        await ctx.send(textArg)
+        
+        try:
+            await ctx.message.delete()
+        except:
+            pass
     
     
     
