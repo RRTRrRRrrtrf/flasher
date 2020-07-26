@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands, tasks
 from time import time
-from random import randint
+from random import uniform
 from typing import Union
 
 class Economy(commands.Cog):
@@ -25,7 +25,7 @@ class Economy(commands.Cog):
     @commands.Cog.listener()
     async def on_command(self, ctx: commands.Context):
         
-        if self.used_commands > 200: return
+        if self.used_commands > 15: return
         self.used_commands += 1
 
         coins_to_add = self.bot.config['commandCost']
@@ -45,8 +45,8 @@ class Economy(commands.Cog):
     async def work(self,ctx):
         """Заработайте Flasher Coins"""
         cnfg = self.bot.config
-        percentage = randint(cnfg['workPercentage'][0],cnfg['workPercentage'][1])/cnfg['workPercentage'][2] # Standart: 1-8 /100 -> 1-8% 
-        tax_percentage = randint(cnfg['taxPercentage'][0],cnfg['taxPercentage'][1])/cnfg['taxPercentage'][2] 
+        percentage = uniform(cnfg['workPercentage'][0],cnfg['workPercentage'][1])
+        tax_percentage = uniform(cnfg['taxPercentage'][0],cnfg['taxPercentage'][1])
         
         treasury_coins = await self.bot.sql(
             "SELECT * FROM eco WHERE id=$1;", self.Treasury_id)
