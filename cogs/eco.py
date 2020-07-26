@@ -103,7 +103,7 @@ class Economy(commands.Cog):
             
             list = ['kazna','казна','treasury','tax','work','налог']
             
-            if user not in list:
+            if user not in list and not user is self.bot.user:
                 return await ctx.send('> Укажите правильного пользователя или "Казна" для оплаты в казну :no_entry:')
             else:
                 id = self.bot.user.id
