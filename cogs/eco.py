@@ -10,7 +10,6 @@ class Economy(commands.Cog):
     def __init__(self, bot):
         self.used_commands = 0
         self.bot = bot
-        self.Treasury_id = 10000000000000000 # If changed do INSERT INTO eco VALUES (new_id_here,0)
         self.anti_spam.start()
 
 
@@ -29,10 +28,10 @@ class Economy(commands.Cog):
         self.used_commands += 1
 
         coins_to_add = self.bot.config['commandCost']
-        status_now = await self.bot.sql("SELECT * FROM eco WHERE id=$1;", self.Treasury_id)
+        status_now = await self.bot.sql("SELECT * FROM eco WHERE id=$1;", self.bot.user.id)
         
         coins_to_add += float(status_now['coins'])
-        await self.bot.sql("UPDATE eco SET coins=$2 WHERE id=$1;", self.Treasury_id, coins_to_add)
+        await self.bot.sql("UPDATE eco SET coins=$2 WHERE id=$1;", self.bot.user.id, coins_to_add)
 
 
 
@@ -49,7 +48,7 @@ class Economy(commands.Cog):
         tax_percentage = uniform(cnfg['taxPercentage'][0],cnfg['taxPercentage'][1])
         
         treasury_coins = await self.bot.sql(
-            "SELECT * FROM eco WHERE id=$1;", self.Treasury_id)
+            "SELECT * FROM eco WHERE id=$1;", self.bot.user.id)
         treasury_coins = float(treasury_coins['coins'])
         
         has = (await self.bot.sql(
@@ -60,7 +59,7 @@ class Economy(commands.Cog):
         deFacto = full - full*tax_percentage
         
         await self.bot.sql("UPDATE eco SET coins=$1 WHERE id=$2", 
-                           treasury_coins - deFacto, self.Treasury_id)
+                           treasury_coins - deFacto, self.bot.user.id)
         await self.bot.sql("UPDATE eco SET coins=$1 WHERE id=$2", 
                            has+deFacto, ctx.author.id)
         
@@ -82,8 +81,9 @@ class Economy(commands.Cog):
         
         if user.bot:
             return await ctx.send('> Балансы для ботов предусмотрены не были, как и то что ботов будут обворовывать...')
+        
         has = await self.bot.sql("SELECT * FROM eco WHERE id=$1;", user.id)
-        treasury_coins = float((await self.bot.sql("SELECT * FROM eco WHERE id=$1;", self.Treasury_id))['coins'])
+        treasury_coins = float((await self.bot.sql("SELECT * FROM eco WHERE id=$1;", self.bot.user.id))['coins'])
         all_coins = sum( ( float(x['coins']) for x in await self.bot.sql('SELECT coins FROM eco') ) )
         
         has = await self.initUser(user, has)
@@ -99,14 +99,24 @@ class Economy(commands.Cog):
         """Отправить Flasher Coins кому либо"""
         topay = amount * 1.15 # 15% tax
         
-        if type(user) is str:
+        if type(user) is str or user is self.bot.user:
+            
             list = ['kazna','казна','treasury','tax','work','налог']
+            
             if user not in list:
                 return await ctx.send('> Укажите правильного пользователя или "Казна" для оплаты в казну :no_entry:')
             else:
-                id = self.Treasury_id
+                id = self.bot.user.id
                 topay = amount
+        
         else:
+            
+            if user.id == ctx.author.id:
+                return await ctx.send('> Оплата в казну происходит непосредсвенно через указание '
+                'в поле "пользователь" слова казна, не надо платить себе что бы внести туда платёж :no_entry:')
+            if user.bot:
+                return await ctx.send('> Боту не нужны ваши деньги :no_entry:')
+            
             id = user.id
             
         has = await self.bot.sql("SELECT * FROM eco WHERE id=$1;", ctx.author.id)
@@ -116,13 +126,6 @@ class Economy(commands.Cog):
             return await ctx.send('Недостаточно монет для проведения платежа :no_entry:\n'
                     f'> **Вам необходимо ещё** `{topay - has}` монет\n'
                     f'> Налоговый сбор составляет {str(topay-amount)[:6]}' )
-        if amount < 0 and user.bot: # easter egg
-            return await ctx.send('Ну это уже верх наглости, воровать, так ещё и у бота! Я вызываю полицию.')
-        if user.id == ctx.author.id:
-            return await ctx.send('> Оплата в казну происходит непосредсвенно через указание '
-                'в поле "пользователь" слова казна, не надо платить себе что бы внести туда платёж :no_entry:')
-        if user.bot:
-            return await ctx.send('> Боту не нужны ваши деньги :no_entry:')
         if amount < 0:
             return await ctx.send('> Не пытайтесь украсть чужие деньги :no_entry:')
             
