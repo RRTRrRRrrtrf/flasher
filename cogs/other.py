@@ -2,7 +2,6 @@ import discord
 from discord.ext import commands, tasks
 import urllib.parse
 import io
-import requests
 import time
 from random import randint
 from naomi_paginator import Paginator
@@ -14,30 +13,6 @@ class Other(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
-    @commands.cooldown(1, 60)
-    async def tts(self, ctx, *, text):
-        """Озвучка введённого вами текста
-        
-        Пример: `f.tts Мой прекрасный текст`
-        
-        :warning: Комманда использует украинскоязычный TTS"""
-
-        req = requests.get(
-            f"http://78.47.9.109/tts/dospeech.php?apikey=freekey&deviceType=ogg&action=tts&text={urllib.parse.quote(text)}"
-        )
-
-        if req.status_code == 414:
-            ctx.send("> Ошибка: слишком много символов")
-            return
-
-        byte = io.BytesIO(req.content)
-        byte.seek(0)
-
-        await ctx.send(
-            "> Вы можете использовать + после гласной что бы изменить ударение. \n\n Результат:",
-            file=discord.File(byte, filename="tts.ogg"),
-        )
 
     @commands.command()
     async def invite(self, ctx):
