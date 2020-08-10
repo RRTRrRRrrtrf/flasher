@@ -8,9 +8,9 @@ import json
 import datetime
 import sys
 import asyncpg # pylint: disable=import-error
-from colorama import Fore, Back, init 
+from colorama import Fore, Back, init # pylint: disable=import-error
 init(autoreset=True)
-
+del init
 
 class Flasher(commands.Bot):
     def __init__(self):
@@ -50,19 +50,7 @@ class Flasher(commands.Bot):
             return output[0]
         else:
             return output
-    
-    
-    async def multisql(self, code, *args, parse=False):
-        outputs = []
-        async with self.db.acquire() as conn:
-            for line in code.split(';'):
-                output = await conn.fetch(line, *args)
-                outputs += output
-            await self.db.release(conn)
-        if not parse:
-            return outputs
-        else:
-            return [dict(i) for i in outputs]
+
 
 
 
