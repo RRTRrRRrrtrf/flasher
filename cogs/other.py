@@ -14,7 +14,7 @@ class Other(commands.Cog):
         self.bot = bot
 
 
-    @commands.command()
+    @commands.command(aliases=['links', 'inv', 'git', 'github', 'support', 'supportServer'])
     async def invite(self, ctx):
         """ Пригласите бота на ваш сервер """
 
@@ -37,10 +37,15 @@ class Other(commands.Cog):
             value=f"[Бот будет иметь права администратора](https://discord.com/oauth2/authorize?client_id={self.bot.user.id}&permissions=8&scope=bot)",
             inline=False,
         )
+
         invite = self.bot.config["supportServerInvite"]
+        donate = self.bot.config["donationURL"]
+        
         emb.add_field(
-            name="Сервер поддержки",
-            value=f"[Посетите сервер поддержки бота]({invite})",
+            name="Другие ссылки",
+            value=f"[Посетите сервер поддержки бота]({invite})\n\n"
+                  "[GitHub репозиторий бота](https://github.com/tuxlabore/flasher)\n\n"
+                  f"[Пожертвования]({donate})",
             inline=False,
         )
 
