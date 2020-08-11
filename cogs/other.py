@@ -4,7 +4,7 @@ import urllib.parse
 import io
 import time
 from random import randint
-from naomi_paginator import Paginator
+from naomi_paginator import Paginator # pylint: disable=import-error
 from utils.errors import PrefixTooLong # pylint: disable=import-error
 
 class Other(commands.Cog):
@@ -20,7 +20,7 @@ class Other(commands.Cog):
 
         emb = discord.Embed(
             title="Кастомизируйте права бота",
-            description=f"[Приглашение со всеми правами](https://discordapp.com/api/oauth2/authorize?client_id={self.bot.user.id}&permissions=-1&scope=bot)",
+            description=f"[Приглашение со всеми возможными правами](https://discord.com/oauth2/authorize?client_id={self.bot.user.id}&permissions=-1&scope=bot)",
             color=discord.Colour.gold(),
         )
         emb.set_author(
@@ -29,12 +29,12 @@ class Other(commands.Cog):
         emb.set_footer(text=f"{ctx.prefix}{ctx.command}")
         emb.add_field(
             name="Пригласите бота без прав",
-            value=f"[Бот не создаёт свою личную роль](https://discordapp.com/api/oauth2/authorize?client_id={self.bot.user.id}&permissions=0&scope=bot)",
+            value=f"[Бот не создаёт свою личную роль](https://discord.com/oauth2/authorize?client_id={self.bot.user.id}&permissions=0&scope=bot)",
             inline=False,
         )
         emb.add_field(
             name="Пригласите бота с правом администратора",
-            value=f"[Бот будет иметь права администратора](https://discordapp.com/api/oauth2/authorize?client_id={self.bot.user.id}&permissions=8&scope=bot)",
+            value=f"[Бот будет иметь права администратора](https://discord.com/oauth2/authorize?client_id={self.bot.user.id}&permissions=8&scope=bot)",
             inline=False,
         )
         invite = self.bot.config["supportServerInvite"]
