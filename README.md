@@ -1,7 +1,7 @@
-# public-flasher
+# flasher
 
-[Flasher Bot](https://discordapp.com/api/oauth2/authorize?client_id=677176212518600714&permissions=-1&scope=bot) code.
-Flasher bot is Discord bot writed on [discord.py](https://github.com/Rapptz/discord.py/)
+[flasher bot](https://discordapp.com/api/oauth2/authorize?client_id=677176212518600714&permissions=-1&scope=bot) code.
+Flasher is Discord bot writed on [discord.py](https://github.com/Rapptz/discord.py/)
 
 # Requirments
 
@@ -24,8 +24,7 @@ Flasher bot is Discord bot writed on [discord.py](https://github.com/Rapptz/disc
 
 # Run
 
-* Create PSQL database
-  * Run commands in backup.psql (`\i /path/to/execute.psql`)
+* Run PostgreSQL database
 * Install required pip modules (`pip3 install -r requirments.txt`)
 * Fill `config.json`,`example_flagConfig.json` (using `example_config.json`, `example_flagConfig.json`)
 * Run using `python3 main.py`

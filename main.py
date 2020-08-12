@@ -1,43 +1,110 @@
 import discord # pylint: disable=import-error
 from discord.ext import commands,tasks # pylint: disable=import-error
+import asyncpg # pylint: disable=import-error
+
 import time
 import os
 import traceback
 import datetime
 import json
-import datetime
 import sys
-import asyncpg # pylint: disable=import-error
+import asyncio
+
+
 from colorama import Fore, Back, init # pylint: disable=import-error
+
 init(autoreset=True)
 del init
 
-class Flasher(commands.Bot):
-    def __init__(self):
-        self.config = self.load_bot_config()
+
+
+def load_bot_config():
+    try: 
+        config = json.loads(open('config.json', 'r').read())
+        print(Fore.GREEN + 'Config loaded')
+        return config
+    except:
+        print(Back.RED + 'Error when config loading. Stopping')
+        exit
+
+
+def load_flags_config():
+        data = json.loads(open('flagConfig.json', 'r').read())
+        keys = data.keys()
+        for key in keys:
+            os.environ[key] = data[key]
+        print(Fore.GREEN + 'Flag config loaded')
+
+
+config = load_bot_config()
+load_flags_config()
+
+SQL_REQUESTS = (
+    '''
+    CREATE TABLE IF NOT EXISTS dashboard (
+        author bigint PRIMARY KEY CHECK (author > 0),
+        topic varchar(60) NOT NULL,
+        content varchar(512),
+        time int NOT NULL
+    );
+    ''',
+
+    '''
+    CREATE TABLE IF NOT EXISTS ideas (
+        author bigint PRIMARY KEY CHECK (author > 0),
+        topic varchar(60),
+        description varchar(512) NOT NULL,
+        time int NOT NULL
+    );
+    ''',
+
+    '''
+    CREATE TABLE IF NOT EXISTS prefixes (
+        id bigint PRIMARY KEY CHECK (id > 0),
+        value varchar(7) NOT NULL
+    );
+    ''',
+
+    '''
+    CREATE TABLE IF NOT EXISTS eco (
+        id bigint PRIMARY KEY CHECK (id > 0),
+        coins decimal NOT NULL CHECK (coins >= 0)
+    );
+    ''',
+
+    '''
+    CREATE TABLE IF NOT EXISTS blacklist(
+        id bigint PRIMARY KEY CHECK (id > 0)
+    )
+    '''
+)
+
+async def run():
+    try:
+        db = await asyncpg.create_pool(config["sqlPath"])        
+        print(Fore.GREEN + 'Postgres connected')
+    except:
+        print(Back.RED + 'Postgres not loaded. Stoping')
+        exit(1)
+
+    for request in SQL_REQUESTS:
+        await db.execute(request)   
+
+    bot = Bot(db)
+    await bot.start(config['token'], reconnect=True, bot=True)
+
+
+
+class Bot(commands.Bot):
+    def __init__(self, db):
+        self.config = config
+        self.db = db
         super().__init__(commands.when_mentioned_or(self.get_prefix), case_insensitive = True)
-        self.load_flags_config()
+
         self.load_extensions()
         self.started_at = datetime.datetime.now()
     
-    
-    
-    def load_bot_config(self):
-        try:
-            print(Fore.YELLOW + 'Config loading') 
-            return json.loads(open('config.json', 'r').read())
-        except:
-            print(Back.RED + 'Error when config loading. Stopping')
-            exit
-        
-        
-    async def on_connect(self):
-        try:
-            self.db = await asyncpg.create_pool(self.config["sqlPath"])        
-            print(Fore.GREEN + 'Postgres conntected')
-        except:
-            print(Back.RED + 'Postgres not loaded. Stoping')
-            exit
+
     
     
     
@@ -129,16 +196,13 @@ class Flasher(commands.Bot):
         
         
         
-    def load_flags_config(self):
-        data = json.loads(open('flagConfig.json', 'r').read())
-        keys = data.keys()
-        for key in keys:
-            os.environ[key] = data[key]
-        print(Fore.GREEN + 'Flag config loaded')
+    
 
 
 
 if __name__ == "__main__":
-    data = json.loads(open('config.json', 'r').read())
-    bot = Flasher()
-    bot.run(data['token'], reconnect=True, bot=True)
+    loop = asyncio.get_event_loop()
+    try: 
+        loop.run_until_complete(run())
+    except KeyboardInterrupt:
+        print(Fore.RED + '\nKeyboardInterrupt')
