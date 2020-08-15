@@ -16,7 +16,7 @@ class Image_tools(commands.Cog):
         """Отправка эмбеды с цветом который вы указали
         
         :warning: Бот принимает только цветовую палитру RGB, показетели которой разделены пробелом а не запятой."""
-        emb = discord.Embed(description=f'RGB:{red},{green},{blue}\nHEX:{rgb2hex(red,green,blue)}\nCMYK:В разаработке\nHSV:В разработке\nHSL:В разаработке',color=discord.Color.from_rgb(red,green,blue))
+        emb = discord.Embed(description=f'RGB:{red},{green},{blue}\nHEX:{rgb2hex(red,green,blue)}\nCMYK:В разработке\nHSV:В разработке\nHSL:В разработке',color=discord.Color.from_rgb(red,green,blue))
         emb.set_author(name=ctx.message.author.name, icon_url= str(ctx.author.avatar_url))
         emb.set_footer(text=f'{ctx.prefix}{ctx.command}' )
         await ctx.send(embed=emb)
@@ -56,7 +56,7 @@ class Image_tools(commands.Cog):
         emb = discord.Embed(title=f'Скин игрока {nickname}', url=f'https://mc-heads.net/body/{nickname}/600')
         emb.set_image(url=f'https://mc-heads.net/body/{nickname}/600')
         emb.set_author(name=ctx.message.author.name, icon_url= str(ctx.author.avatar_url))
-        emb.set_footer(text=f'{ctx.prefix}{ctx.command}' )
+        emb.set_footer(text=f'{ctx.prefix}{ctx.command}')
         await ctx.send(embed=emb)
 
     
