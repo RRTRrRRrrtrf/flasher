@@ -2,12 +2,8 @@
     "token": "YOUR MAIN BOT TOKEN AS STRING",
     "ideaChannel": "CHANNEL ID (FOR COMMAND f.idea) AS INTEGER",
     "bugReportChannel": "GUILD CHANNEL ID FOR BUG REPORT AS INTEGER (for utils.error_handler)",
-    "debugChannel": "CHANNEL ID AS INTEGER (FOR cogs.debugger)",
     "dashboardChannel": "CHANNEL ID FOR f.dashboardAdd f.ptbAdd AS INTEGER",
     "blacklistStatus": "USER BLACKLIST STATUS AS BOOLEAN",
-    "debugIgnoreGuilds": [
-        "GUILD IDs PRESENTED AS INTEGER (ONLY FOR cogs.debugger)"
-    ],
     "prefix": "PLACE HERE YOUR BOT PREFIX AS STRING",
     "sqlPath": "PLACE HERE PATH TO PSQL BASE LIKE postgresql://user:password@ip:port/db_name",
     "supportServerInvite": "Place here server invite",
@@ -19,7 +15,6 @@
         "cogs.img_tools",
         "cogs.other",
         "cogs.number_tools",
-        "cogs.debugger",
         "cogs.eco"
     ],
     "customOwnerList": [
