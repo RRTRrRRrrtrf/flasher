@@ -36,8 +36,6 @@ def load_flags_config():
         print(Fore.GREEN + 'Flag config loaded')
 
 
-config = load_bot_config()
-load_flags_config()
 
 SQL_REQUESTS = (
     '''
@@ -201,6 +199,8 @@ class Bot(commands.Bot):
 
 
 if __name__ == "__main__":
+    config = load_bot_config()
+    load_flags_config()
     loop = asyncio.get_event_loop()
     try: 
         loop.run_until_complete(run())
