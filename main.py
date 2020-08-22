@@ -25,7 +25,7 @@ def load_bot_config():
         return config
     except:
         print(Back.RED + 'Error when config loading. Stopping')
-        exit
+        exit(1)
 
 
 def load_flags_config():
