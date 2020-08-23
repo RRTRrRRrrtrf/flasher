@@ -1,6 +1,7 @@
 import discord # pylint: disable=import-error
 from discord.ext import commands,tasks # pylint: disable=import-error
 import asyncpg # pylint: disable=import-error
+from utils.db import PrefixesSQL 
 
 import time
 import os
@@ -97,8 +98,8 @@ class Bot(commands.Bot):
     def __init__(self, db):
         self.config = config
         self.db = db
+        self.prefixes = PrefixesSQL(self.db, self.config)
         super().__init__(commands.when_mentioned_or(self.get_prefix), case_insensitive = True)
-
         self.load_extensions()
         self.started_at = datetime.datetime.now()
     
@@ -120,21 +121,22 @@ class Bot(commands.Bot):
 
 
     async def get_prefix(self, msg):
-        data = await self.sql(f'SELECT * FROM prefixes WHERE id={msg.author.id}')
-        if not data: # <Record > case
-            prefix = commands.when_mentioned_or(self.config["prefix"])
-        else:
-            prefix = commands.when_mentioned_or(data['value'])
-            return prefix(self,msg)
+        """Returns user/guild's prefix"""
 
+        user_prefix = await self.prefixes.get(msg.author)
+        
         if msg.guild:
-            data = await self.sql(f'SELECT * FROM prefixes WHERE id={msg.guild.id}')
-            if not data: # <Record > case
-                prefix = commands.when_mentioned_or(self.config["prefix"])
+            
+            server_prefix = await self.prefixes.get(msg.guild)
+            
+            if user_prefix == self.config.get('prefix'):
+                return server_prefix
             else:
-                prefix = commands.when_mentioned_or(data['value'])
-        return prefix(self, msg)
-
+                return user_prefix
+        
+        else:
+        
+            return user_prefix
 
 
     async def on_message(self, msg):
