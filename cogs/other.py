@@ -15,52 +15,14 @@ class Other(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(
-        aliases=["links", "inv", "git", "github", "support", "supportServer"]
-    )
-    async def invite(self, ctx):
-        """ Пригласите бота на ваш сервер """
-
-        emb = discord.Embed(
-            title="Кастомизируйте права бота",
-            description=f"[Приглашение со всеми возможными правами](https://discord.com/oauth2/authorize?client_id={self.bot.user.id}&permissions=-1&scope=bot)",
-            color=discord.Colour.gold(),
-        )
-        emb.set_author(
-            name=ctx.message.author.name, icon_url=str(ctx.author.avatar_url)
-        )
-        emb.set_footer(text=f"{ctx.prefix}{ctx.command}")
-        emb.add_field(
-            name="Пригласите бота без прав",
-            value=f"[Бот не создаёт свою личную роль](https://discord.com/oauth2/authorize?client_id={self.bot.user.id}&permissions=0&scope=bot)",
-            inline=False,
-        )
-        emb.add_field(
-            name="Пригласите бота с правом администратора",
-            value=f"[Бот будет иметь права администратора](https://discord.com/oauth2/authorize?client_id={self.bot.user.id}&permissions=8&scope=bot)",
-            inline=False,
-        )
-
-        invite = self.bot.config["supportServerInvite"]
-        donate = self.bot.config["donationURL"]
-
-        emb.add_field(
-            name="Другие ссылки",
-            value=f"[Посетите сервер поддержки бота]({invite})\n\n"
-            "[GitHub репозиторий бота](https://github.com/tuxlabore/flasher)\n\n"
-            f"[Пожертвования]({donate})",
-            inline=False,
-        )
-
-        await ctx.send(embed=emb)
-
+    
     @commands.group(name="prefix", invoke_without_command=True)
     @commands.guild_only()
     async def prefix(self, ctx):
-        f"""Просмотр префикса
+        """Просмотр префикса
 
         Для смены префикса используйте *`prefix set`*
-        Пример: `{ctx.prefix}prefix set F!`
+        Пример: `prefix set F!`
 
         :warning: Бот чуствителен к регистру символов
         :memo: Исполнение комманды без указаного перефикса покажет вам какой у вас сейчас префикс"""
@@ -101,10 +63,10 @@ class Other(commands.Cog):
     @commands.guild_only()
     @commands.cooldown(1, 15, commands.BucketType.guild)
     async def prefix_guild(self, ctx, prefix):
-        f"""Смена префикса сервера
+        """Смена префикса сервера
 
         Для смены префикса используйте *`prefix guild`*
-        Пример: `{ctx.prefix}prefix guild F!`
+        Пример: `prefix guild F!`
 
         :warning: Бот чуствителен к регистру символов
         :memo: Исполнение комманды без указаного перефикса покажет вам какой у вас сейчас префикс"""
@@ -131,10 +93,10 @@ class Other(commands.Cog):
     @prefix.command(name="self", aliases=["user"])
     @commands.cooldown(1, 8, commands.BucketType.user)
     async def prefix_self(self, ctx, prefix):
-        f"""Смена персонального префикса
+        """Смена персонального префикса
 
         Для смены префикса используйте *`prefix self`*
-        Пример: `{ctx.prefix}prefix self F!`
+        Пример: `prefix self F!`
 
         :warning: Бот чуствителен к регистру символов
         :memo: Исполнение комманды без указаного перефикса покажет вам какой у вас сейчас префикс"""
@@ -158,182 +120,6 @@ class Other(commands.Cog):
             name=ctx.message.author.name, icon_url=str(ctx.author.avatar_url)
         )
         await ctx.send(embed=embed)
-
-    @commands.command(name="help", aliases=["commands", "cmds"])
-    async def thelp(self, ctx, *, command: str = None):
-        """Справочник по командам."""
-
-        if command is None:
-
-            p = Paginator(ctx)
-            embed = discord.Embed(
-                timestamp=ctx.message.created_at,
-                color=randint(0x000000, 0xFFFFFF),
-                title="Справочник по командам",
-            )
-            __slots__ = []
-
-            for cog in self.bot.cogs:
-                __slots__.append(self.bot.get_cog(cog))
-
-            emb = discord.Embed(
-                title="Обратите внимание",
-                description="Если по какой то из причин стрелки для переключения страниц помощи по коммандах не работают вы можете использовать комманду `simplehelp`",
-                color=discord.Colour.light_grey(),
-            )
-            emb.set_thumbnail(url=self.bot.user.avatar_url)
-            emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-            emb.set_footer(
-                text=f"{ctx.prefix}help [команда/категория] для получения доп.информации."
-            )
-            # p.add_page(emb)
-            del emb
-
-            for cog in __slots__:
-                cog_info = cog.__class__.__doc__.partition(
-                    "\n"
-                )  # (name, partitionSymboll, description)
-                cog_commands = len(
-                    [
-                        x
-                        for x in self.bot.commands
-                        if x.cog_name == cog.__class__.__name__ and not x.hidden
-                    ]
-                )
-                if cog_commands == 0:
-                    pass
-                else:
-                    embed.add_field(
-                        name=cog_info[0],
-                        value=", ".join(
-                            [
-                                f"`{x}`"
-                                for x in self.bot.commands
-                                if x.cog_name == cog.__class__.__name__ and not x.hidden
-                            ]
-                        ),
-                        inline=False,
-                    )
-                    embed.set_thumbnail(url=self.bot.user.avatar_url)
-                    embed.set_author(
-                        name=ctx.author.name, icon_url=ctx.author.avatar_url
-                    )
-                    embed.set_footer(
-                        text=f"{ctx.prefix}help [команда/категория] для получения доп.информации."
-                    )
-                    p.add_page(embed)
-
-                    embed = discord.Embed(
-                        timestamp=ctx.message.created_at,
-                        color=randint(0x000000, 0xFFFFFF),
-                        title="Справочник по командам",
-                    )
-
-            await p.call_controller()
-
-        else:
-            entity = self.bot.get_cog(command) or self.bot.get_command(command)
-
-            if entity is None:
-                clean = command.replace("@", "@\u200b")
-                embed = discord.Embed(
-                    timestamp=ctx.message.created_at,
-                    color=randint(0x000000, 0xFFFFFF),
-                    title="Справочник по командам",
-                    description=f'Команда или категория "{clean}" не найдена.',
-                )
-
-            elif isinstance(entity, commands.Command):
-                embed = discord.Embed(
-                    timestamp=ctx.message.created_at,
-                    color=randint(0x000000, 0xFFFFFF),
-                    title="Справочник по командам",
-                )
-                embed.add_field(
-                    name=f"{ctx.prefix}{entity.name} {entity.signature}",
-                    value=entity.help,
-                    inline=False,
-                )
-
-                if entity.aliases:
-                    embed.add_field(
-                        name="Варианты использования",
-                        value=",".join([f"`{x}`" for x in entity.aliases]),
-                        inline=False,
-                    )
-
-            else:
-                embed = discord.Embed(
-                    timestamp=ctx.message.created_at,
-                    color=randint(0x000000, 0xFFFFFF),
-                    title="Справочник по командам",
-                )
-                cog_info = entity.__class__.__doc__.partition(
-                    "\n"
-                )  # (name, partitionSymboll, description)
-                embed.add_field(
-                    name=cog_info[0],
-                    value=", ".join(
-                        [
-                            f"`{x}`"
-                            for x in self.bot.commands
-                            if x.cog_name == entity.__class__.__name__ and not x.hidden
-                        ]
-                    ),
-                    inline=False,
-                )
-
-            embed.set_thumbnail(url=self.bot.user.avatar_url)
-            embed.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-            embed.set_footer(
-                text=f"{ctx.prefix}help [команда/категория] для получения доп.информации."
-            )
-
-            await ctx.send(embed=embed)
-
-    @commands.command(aliases=["simplecommands", "simplecmds"])
-    async def simplehelp(self, ctx):
-        """Справочник по командам.
-        Для того что бы уточнить предназначение комманды используйте `help`!
-        """
-        embed = discord.Embed(
-            timestamp=ctx.message.created_at,
-            color=randint(0x000000, 0xFFFFFF),
-            title="Справочник по командам",
-        )
-        __slots__ = []
-
-        for cog in self.bot.cogs:
-            __slots__.append(self.bot.get_cog(cog))
-
-        for cog in __slots__:
-            cog_commands = len(
-                [
-                    x
-                    for x in self.bot.commands
-                    if x.cog_name == cog.__class__.__name__ and not x.hidden
-                ]
-            )
-            if cog_commands == 0:
-                pass
-            else:
-                embed.add_field(
-                    name=cog.__class__.__doc__.partition("\n")[0],
-                    value=", ".join(
-                        [
-                            f"`{x}`"
-                            for x in self.bot.commands
-                            if x.cog_name == cog.__class__.__name__ and not x.hidden
-                        ]
-                    ),
-                    inline=False,
-                )
-
-        await ctx.send(embed=embed)
-
-    @commands.command(aliases=["�🏓", "pong", "latency"])
-    async def ping(self, ctx):
-        await ctx.send(f":ping_pong: {round(self.bot.latency * 1000)}ms")
 
 
 def setup(bot):

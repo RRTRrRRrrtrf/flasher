@@ -14,7 +14,8 @@
         "cogs.img_tools",
         "cogs.other",
         "cogs.number_tools",
-        "cogs.eco"
+        "cogs.eco",
+        "cogs.info"
     ],
     "workPercentage": [
         0.01,
