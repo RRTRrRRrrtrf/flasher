@@ -4,17 +4,20 @@ import urllib.parse
 import io
 import time
 from random import randint
-from naomi_paginator import Paginator # pylint: disable=import-error
-from utils.errors import PrefixTooLong # pylint: disable=import-error
+from naomi_paginator import Paginator  # pylint: disable=import-error
+from utils.errors import PrefixTooLong  # pylint: disable=import-error
+
 
 class Other(commands.Cog):
     """Другие команды
     Комманды которым не нашлось другой категории."""
+
     def __init__(self, bot):
         self.bot = bot
 
-
-    @commands.command(aliases=['links', 'inv', 'git', 'github', 'support', 'supportServer'])
+    @commands.command(
+        aliases=["links", "inv", "git", "github", "support", "supportServer"]
+    )
     async def invite(self, ctx):
         """ Пригласите бота на ваш сервер """
 
@@ -40,99 +43,125 @@ class Other(commands.Cog):
 
         invite = self.bot.config["supportServerInvite"]
         donate = self.bot.config["donationURL"]
-        
+
         emb.add_field(
             name="Другие ссылки",
             value=f"[Посетите сервер поддержки бота]({invite})\n\n"
-                  "[GitHub репозиторий бота](https://github.com/tuxlabore/flasher)\n\n"
-                  f"[Пожертвования]({donate})",
+            "[GitHub репозиторий бота](https://github.com/tuxlabore/flasher)\n\n"
+            f"[Пожертвования]({donate})",
             inline=False,
         )
 
         await ctx.send(embed=emb)
 
-    @commands.group(name='prefix',invoke_without_command=True)
+    @commands.group(name="prefix", invoke_without_command=True)
     @commands.guild_only()
     async def prefix(self, ctx):
         f"""Просмотр префикса
-        
+
         Для смены префикса используйте *`prefix set`*
         Пример: `{ctx.prefix}prefix set F!`
-        
-        :warning: Бот чуствителен к регистру символов
-        :memo: Исполнение комманды без указаного перефикса покажет вам какой у вас сейчас префикс """
 
-        server_data = await self.bot.sql(f'SELECT * FROM prefixes WHERE id={ctx.guild.id}')
-        user_data = await self.bot.sql(f'SELECT * FROM prefixes WHERE id={ctx.author.id}')
-        
-        if not server_data: # <Record > case
+        :warning: Бот чуствителен к регистру символов
+        :memo: Исполнение комманды без указаного перефикса покажет вам какой у вас сейчас префикс"""
+
+        server_data = await self.bot.sql(
+            f"SELECT * FROM prefixes WHERE id={ctx.guild.id}"
+        )
+        user_data = await self.bot.sql(
+            f"SELECT * FROM prefixes WHERE id={ctx.author.id}"
+        )
+
+        if not server_data:  # <Record > case
             server_prefix = self.bot.config["prefix"]
         else:
             server_prefix = server_data["value"]
 
-        if not user_data: # <Record > case
+        if not user_data:  # <Record > case
             user_prefix = self.bot.config["prefix"]
         else:
             user_prefix = user_data["value"]
 
-        embed = discord.Embed(description='На сервере установлен префикс **`%s`**' % server_prefix,color=discord.Colour.gold())
-        embed.add_field(name='Персональный префикс', value='У вас установлен префикс **`%s`**' % user_prefix)
-        embed.set_author(name=ctx.message.author.name, icon_url=str(ctx.author.avatar_url))
-        embed.set_footer(text=f'{ctx.prefix}{ctx.command}')
+        embed = discord.Embed(
+            description="На сервере установлен префикс **`%s`**" % server_prefix,
+            color=discord.Colour.gold(),
+        )
+        embed.add_field(
+            name="Персональный префикс",
+            value="У вас установлен префикс **`%s`**" % user_prefix,
+        )
+        embed.set_author(
+            name=ctx.message.author.name, icon_url=str(ctx.author.avatar_url)
+        )
+        embed.set_footer(text=f"{ctx.prefix}{ctx.command}")
         await ctx.send(embed=embed)
-    
 
-    @prefix.command(name='guild', aliases=['server'])
+    @prefix.command(name="guild", aliases=["server"])
     @commands.has_permissions(manage_guild=True)
     @commands.guild_only()
-    @commands.cooldown(1,15,commands.BucketType.guild)
-    async def prefix_guild(self,ctx,prefix):
+    @commands.cooldown(1, 15, commands.BucketType.guild)
+    async def prefix_guild(self, ctx, prefix):
         f"""Смена префикса сервера
-        
+
         Для смены префикса используйте *`prefix guild`*
         Пример: `{ctx.prefix}prefix guild F!`
-        
+
         :warning: Бот чуствителен к регистру символов
-        :memo: Исполнение комманды без указаного перефикса покажет вам какой у вас сейчас префикс """
-        
-        if len(prefix) > 7: raise PrefixTooLong()
-        
-        await self.bot.sql(f'INSERT INTO prefixes (id, value) VALUES ($1,$2)'
-                            'ON CONFLICT (id) DO UPDATE SET value = excluded.value;', ctx.guild.id, prefix)
-                            
-        embed = discord.Embed(description='На сервере успешно установлен префикс %s' % prefix,color=discord.Colour.green())
-        embed.set_author(name=ctx.message.author.name, icon_url=str(ctx.author.avatar_url))
+        :memo: Исполнение комманды без указаного перефикса покажет вам какой у вас сейчас префикс"""
+
+        if len(prefix) > 7:
+            raise PrefixTooLong()
+
+        await self.bot.sql(
+            f"INSERT INTO prefixes (id, value) VALUES ($1,$2)"
+            "ON CONFLICT (id) DO UPDATE SET value = excluded.value;",
+            ctx.guild.id,
+            prefix,
+        )
+
+        embed = discord.Embed(
+            description="На сервере успешно установлен префикс %s" % prefix,
+            color=discord.Colour.green(),
+        )
+        embed.set_author(
+            name=ctx.message.author.name, icon_url=str(ctx.author.avatar_url)
+        )
         await ctx.send(embed=embed)
 
-
-
-    @prefix.command(name='self', aliases=['user'])
-    @commands.cooldown(1,8,commands.BucketType.user)
-    async def prefix_self(self,ctx,prefix):
+    @prefix.command(name="self", aliases=["user"])
+    @commands.cooldown(1, 8, commands.BucketType.user)
+    async def prefix_self(self, ctx, prefix):
         f"""Смена персонального префикса
-        
+
         Для смены префикса используйте *`prefix self`*
         Пример: `{ctx.prefix}prefix self F!`
-        
+
         :warning: Бот чуствителен к регистру символов
-        :memo: Исполнение комманды без указаного перефикса покажет вам какой у вас сейчас префикс """
-        
-        if len(prefix) > 7: raise PrefixTooLong()
+        :memo: Исполнение комманды без указаного перефикса покажет вам какой у вас сейчас префикс"""
 
-        await self.bot.sql(f'INSERT INTO prefixes VALUES ($1,$2) '
-                            'ON CONFLICT (id) DO UPDATE SET value = excluded.value;', ctx.author.id, prefix)
-        #except postgrelib_exceptions._base.InterfaceError: pass
-        
-        embed = discord.Embed(description='Персональный префикс %s успешно установлен' % prefix,color=discord.Colour.green())
-        embed.set_author(name=ctx.message.author.name, icon_url=str(ctx.author.avatar_url))
+        if len(prefix) > 7:
+            raise PrefixTooLong()
+
+        await self.bot.sql(
+            f"INSERT INTO prefixes VALUES ($1,$2) "
+            "ON CONFLICT (id) DO UPDATE SET value = excluded.value;",
+            ctx.author.id,
+            prefix,
+        )
+        # except postgrelib_exceptions._base.InterfaceError: pass
+
+        embed = discord.Embed(
+            description="Персональный префикс %s успешно установлен" % prefix,
+            color=discord.Colour.green(),
+        )
+        embed.set_author(
+            name=ctx.message.author.name, icon_url=str(ctx.author.avatar_url)
+        )
         await ctx.send(embed=embed)
-
-
 
     @commands.command(name="help", aliases=["commands", "cmds"])
     async def thelp(self, ctx, *, command: str = None):
-        """Справочник по командам.
-        """
+        """Справочник по командам."""
 
         if command is None:
 
@@ -157,11 +186,13 @@ class Other(commands.Cog):
             emb.set_footer(
                 text=f"{ctx.prefix}help [команда/категория] для получения доп.информации."
             )
-            #p.add_page(emb)
+            # p.add_page(emb)
             del emb
 
             for cog in __slots__:
-                cog_info = cog.__class__.__doc__.partition('\n')  # (name, partitionSymboll, description)
+                cog_info = cog.__class__.__doc__.partition(
+                    "\n"
+                )  # (name, partitionSymboll, description)
                 cog_commands = len(
                     [
                         x
@@ -237,7 +268,9 @@ class Other(commands.Cog):
                     color=randint(0x000000, 0xFFFFFF),
                     title="Справочник по командам",
                 )
-                cog_info = entity.__class__.__doc__.partition('\n') # (name, partitionSymboll, description)
+                cog_info = entity.__class__.__doc__.partition(
+                    "\n"
+                )  # (name, partitionSymboll, description)
                 embed.add_field(
                     name=cog_info[0],
                     value=", ".join(
@@ -285,7 +318,7 @@ class Other(commands.Cog):
                 pass
             else:
                 embed.add_field(
-                    name=cog.__class__.__doc__.partition('\n')[0],
+                    name=cog.__class__.__doc__.partition("\n")[0],
                     value=", ".join(
                         [
                             f"`{x}`"
@@ -303,9 +336,5 @@ class Other(commands.Cog):
         await ctx.send(f":ping_pong: {round(self.bot.latency * 1000)}ms")
 
 
-
 def setup(bot):
     bot.add_cog(Other(bot))
-
-
-

@@ -38,12 +38,6 @@ class CommandErrorHandler(commands.Cog):
             await ctx.invoke(self.bot.get_command("help"), command=str(ctx.command))
             return
 
-        elif isinstance(error, commands.errors.CheckFailure):   # This error invokes only if bot check failed, but we have only one check, it is blacklist check
-            msg = await ctx.send('%s, вы находитесь в чёрном списке бота.' % ctx.author.mention) 
-            await asyncio.sleep(10)
-            return await msg.delete(reason='Timeout')
-
-
         await ctx.message.add_reaction("🚫")  # The reaction will be not added for errors upper
 
         if isinstance(error, commands.NotOwner):
@@ -164,6 +158,14 @@ class CommandErrorHandler(commands.Cog):
             await ctx.send(f"> Значение префикса не может быть больше чем 7 символов!")
             return
 
+        
+        elif isinstance(error, commands.errors.CheckFailure):                                    # Invokes only if user blacklisted 
+            msg = await ctx.send('%s, вы находитесь в чёрном списке бота.' % ctx.author.mention) # (or by admin cog, but commands.NotOwner will be already invoked)
+            await asyncio.sleep(10)
+            try:await msg.delete()
+            except:pass
+            return
+
         err = "\n".join(
             traceback.format_exception(type(error), error, error.__traceback__)
         )
@@ -173,15 +175,12 @@ class CommandErrorHandler(commands.Cog):
             await chn.send(
                 embed=discord.Embed(
                     title="Вызвана ошибка",
-                    description=f"""Комманда: `{ctx.command}`
-                Вызвана в: {ctx.channel} (вызвана {ctx.author})
-            
-                Сообщение: ```\n{ctx.message.content}\n```\nКод ошибки:\n```py\n{err}\n```""",
-                ).set_footer(
-                    text=f'Ray ID: {hashlib.md5(bytes(err, "utf8")).hexdigest()}'
-                )
-            )
+                    description=
+                    f"""Комманда: `{ctx.command}`
+                    Вызвана в: {ctx.channel} (вызвана {ctx.author})
+                    Сообщение: ```\n{ctx.message.content}\n```\nКод ошибки:\n```py\n{err}\n```"""))
         finally:
+            
             try:
                 await ctx.send(
                     embed=discord.Embed(
@@ -192,6 +191,7 @@ class CommandErrorHandler(commands.Cog):
                 )
             finally:
                 pass
+        
 
 
 def setup(bot):
