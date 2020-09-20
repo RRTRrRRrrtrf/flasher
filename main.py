@@ -3,7 +3,7 @@ from discord.ext import commands, tasks
 import asyncpg  
 from utils.db import PrefixesSQL, SQL
 
-from Core.config import SQL_REQUESTS, load_bot_config, load_flags_config, load_extensions
+from core.config import SQL_REQUESTS, load_bot_config, load_flags_config, load_extensions
 
 from time import ctime
 import os
