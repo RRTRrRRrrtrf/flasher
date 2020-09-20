@@ -15,7 +15,8 @@
         "cogs.other",
         "cogs.number_tools",
         "cogs.eco",
-        "cogs.info"
+        "cogs.info",
+        "cogs.admin"
     ],
     "workPercentage": [
         0.01,

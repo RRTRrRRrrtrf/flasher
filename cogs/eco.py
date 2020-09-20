@@ -27,6 +27,8 @@ class Economy(commands.Cog):
             return
         self.used_commands += 1
 
+        await self.bot.sql("INSERT INTO eco VALUES ($1, 1) ON CONFLICT DO NOTHING;", self.bot.user.id)
+
         coins_to_add = self.bot.config["commandCost"]
         status_now = await self.bot.sql(
             "SELECT * FROM eco WHERE id=$1;", self.bot.user.id
