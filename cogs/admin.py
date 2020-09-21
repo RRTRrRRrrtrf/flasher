@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+
 import jishaku
 import os
 import sys
@@ -7,12 +8,14 @@ import humanize
 import datetime
 import time
 
+from utils.db import SQL # pylint: disable=import-error
 
 class Admin(commands.Cog):
     """Комманды для владельца бота"""
 
     def __init__(self, bot):
         self.bot = bot
+        self.sql = SQL(bot.db).sql
 
     async def cog_check(self, ctx):
         if await self.bot.is_owner(ctx.author):
@@ -43,7 +46,7 @@ class Admin(commands.Cog):
         await ctx.send("> OK")
 
     @commands.command(name="sql", hidden=True)
-    async def sql(self, ctx, *, code: jishaku.codeblocks.codeblock_converter):
+    async def sql_cmd(self, ctx, *, code: jishaku.codeblocks.codeblock_converter):
         """Исполнить запрос к PostgreSQL"""
         requests = code.content.split(";")
         out = []
@@ -55,7 +58,7 @@ class Admin(commands.Cog):
                 continue
 
             try:
-                answer = await self.bot.sql(request)
+                answer = await self.sql(request)
 
             except Exception as e:
                 answer = f"{type(e).__name__}:  {e}"
@@ -78,8 +81,7 @@ class Admin(commands.Cog):
 
         await ctx.author.send(
             f"Backup loaded: " + humanize.naturalsize(os.path.getsize("backup.psql")),
-            file=discord.File("backup.psql"),
-        )
+            file=discord.File("backup.psql"))
 
     @commands.command(hidden=True)
     async def msg(self, ctx, *, textArg):
