@@ -1,7 +1,7 @@
 import asyncpg
 from typing import Union
 from discord import User, Guild
-
+from datetime import datetime
 
 class SQL:
     """Requests to DB"""
@@ -19,25 +19,30 @@ class SQL:
         else:
             return output
 
-    async def rawGet(self, table: str, column: str, value):
-        result = await self.sql(f"SELECT * FROM {table} WHERE {column}={value}")
+
+    async def rawGetAll(self, table: str):
+        result = await self.sql(f"SELECT * FROM {table}")
         return result
 
+    async def rawGet(self, table: str, column: str, value):
+        result = await self.sql(f"SELECT * FROM {table} WHERE {column}=$1", value)
+        return result
 
     async def rawDelete(self, table: str, column: str, value):
         await self.sql(f"DELETE FROM {table} WHERE {column}={value}")
 
     async def rawWrite(self, table: str, *values):
         args_description = ''
-        for i in range(1,len(values)+1):
-            args_description += f'${i}, '
-        await self.sql(f"INSERT INTO {table} VALUES {args_description};", *values)
+        for i in range(1, len(values)+1):
+            args_description += f'${i}, ' if i != len(values) else f'${i}'
+        await self.sql(f"INSERT INTO {table} VALUES ({args_description});", *values)
 
     async def rawUpdate(self, table: str, primary_key: str, update_params: str, *values):
         args_description = ''
         for i in range(1, len(values)+1):
             args_description += f'${i}, ' if i != len(values) else f'${i}'
         await self.sql(f"INSERT INTO {table} VALUES ({args_description}) ON CONFLICT ({primary_key}) DO UPDATE SET {update_params};", *values)
+
 
 class PrefixesSQL(SQL):
     """Requests to DB associated with prefixes"""
@@ -58,9 +63,22 @@ class PrefixesSQL(SQL):
         return prefix
 
     async def set(self, obj: Union[User, Guild], value: str):
+        """(Re)sets user/guild prefix request to DB"""
         id = obj.id
 
         if value == self.standartValue:
             await self.rawDelete(table='prefixes', column='id', value=id)
-            return 'Prefix reseted'
+            return 'Prefix reseted' # True
         await self.rawUpdate('prefixes', 'id', 'value=EXCLUDED.value', id, value) # table=prefixes, primary_key=id, update_params='value=EXCLUDED.value'
+
+class IdeasSQL(SQL):
+    """Requests to DB associated with bot ideas"""
+    def __init__(self, pool: asyncpg.pool.Pool):
+        super().__init__(pool)
+
+    async def add(self, author: User, topic: str or None, description: str, timestamp: float = datetime.now().timestamp()):
+        """Adds idea to DB."""
+        await self.rawWrite('ideas', author.id, topic, description, timestamp)
+        return len(await self.rawGetAll('ideas')) + 1
+
+    

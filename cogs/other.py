@@ -6,7 +6,11 @@ from naomi_paginator import Paginator
 from random import choice, randint
 
 from utils.errors import PrefixTooLong, TooManyTries, CanceledByUser # pylint: disable=import-error
-from utils.db import PrefixesSQL # pylint: disable=import-error
+from utils.db import PrefixesSQL, IdeasSQL # pylint: disable=import-error
+
+class DB:
+    """Empty class for self.db.prefixes/ideas"""
+    pass
 
 class Other(commands.Cog):
     """Другие команды
@@ -14,8 +18,11 @@ class Other(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        self.db = PrefixesSQL(bot.db, bot.config)
-    
+        self.db = DB
+        self.db.prefixes = PrefixesSQL(bot.db, bot.config)
+        self.db.ideas = IdeasSQL(bot.db)
+
+
     @commands.group(name="prefix", invoke_without_command=True)
     async def prefix(self, ctx, disable_footer=False): # disable_footer unrecheable from message
         """Просмотр префикса
@@ -23,13 +30,13 @@ class Other(commands.Cog):
         
         :memo: Самый большой приоритет имеет персональный префикс, но приоритет исчезает если префикс солпадает с стандартным префиксом бота"""
         
-        user_prefix = await self.db.get(ctx.author)
+        user_prefix = await self.db.prefixes.prefixes.prefixes.prefixes.get(ctx.author)
 
         embed = discord.Embed(description="Ваш персональный префикс **`%s`**" % user_prefix,
             color=discord.Colour.gold())
 
         embed.add_field(name="Префикс сервера",
-            value="На этом сервере установлен префикс **`%s`**" % await self.db.get(ctx.guild)
+            value="На этом сервере установлен префикс **`%s`**" % await self.db.prefixes.prefixes.prefixes.prefixes.get(ctx.guild)
         ) if ctx.guild else None
 
         embed.set_author(name=ctx.message.author.name, icon_url=str(ctx.author.avatar_url))
@@ -55,7 +62,7 @@ class Other(commands.Cog):
         if len(prefix) > 7:
             raise PrefixTooLong()
 
-        is_reseted = await self.db.set(ctx.guild, prefix) # Returns 'Prefix reseted' if prefix reseted
+        is_reseted = await self.db.prefixes.prefixes.prefixes.prefixes.set(ctx.guild, prefix) # Returns 'Prefix reseted' if prefix reseted
 
         embed = discord.Embed(
             description="На сервере успешно установлен префикс %s" % prefix,
@@ -84,7 +91,7 @@ class Other(commands.Cog):
         if len(prefix) > 7:
             raise PrefixTooLong()
 
-        is_reseted = await self.db.set(ctx.author, prefix) # Returns 'Prefix reseted' if prefix reseted
+        is_reseted = await self.db.prefixes.prefixes.prefixes.set(ctx.author, prefix) # Returns 'Prefix reseted' if prefix reseted
 
         embed = discord.Embed(
             description="Ваш новый персональный префикс - `%s`" % prefix,
@@ -116,7 +123,7 @@ class Other(commands.Cog):
         """Starts status loop on bot ready"""
         try:
             self.status_loop.start() # pylint: disable=no-member
-        except RuntimeError:
+        except RuntimeError: # Raises if loop already started (because on reconnect event invokes)
             pass
 
     @commands.command(aliases=["suggestIdea", "bug", "idea"])
@@ -128,39 +135,39 @@ class Other(commands.Cog):
             return msg.author.id == ctx.author.id
 
         for i in range(5):
-            botMSG = await ctx.send(
+            await ctx.send(
                 "Введите тему идеи (не больше 60 символов).\n"
                 'Отправьте "Отмена" что бы отменить подачу идеи\n'
-                'или "Пропустить" что бы не подавать тему для идеи\n'
-            )
-            msg = await self.bot.wait_for("message", check=check, timeout=60)
+                'или "Пропустить" что бы не подавать тему для идеи\n', delete_after=60)
 
+            msg = await self.bot.wait_for("message", check=check, timeout=60)
             topic = msg.content
+            
             try:
                 await msg.delete()
             except:
                 pass
 
-            if topic.lower() in ("skip", "пропустить", "пропуск"):
+            if topic.lower() in ("skip", "пропустить", "пропуск", "скип"):
                 topic = None
                 break
             elif topic.lower() in ("отмена", "отменить", "cancel"):
                 raise CanceledByUser()
 
             if len(topic) < 61:
-                await botMSG.delete()
                 break
+            else:
+                await ctx.send('Слишком большая длина!', delete_after=5)
             if i == 4:
                 raise TooManyTries()
 
         for i in range(5):
-            botMSG = await ctx.send(
+            await ctx.send(
                 "Введите описание идеи (не больше 512 символов).\n"
-                'Отправьте "Отмена" что бы отменить подачу идеи\n'
-            )
-            msg = await self.bot.wait_for("message", check=check, timeout=60)
-
+                'Отправьте "Отмена" что бы отменить подачу идеи\n', delete_after=120)
+            msg = await self.bot.wait_for("message", check=check, timeout=120)
             description = msg.content
+
             try:
                 await msg.delete()
             except:
@@ -169,19 +176,13 @@ class Other(commands.Cog):
             if description.lower() in ("отмена", "отменить", "cancel"):
                 raise CanceledByUser()
             if len(description) < 513:
-                await botMSG.delete()
                 break
+            else:
+                await ctx.send('Слишком большая длина!', delete_after=5)
             if i == 4:
                 raise TooManyTries()
 
-        idea_number = len(await self.bot.sql("SELECT * FROM ideas;")) + 1
-        await self.bot.sql(
-            f"INSERT INTO ideas (topic,description,author,time) VALUES ($1,$2,$3,$4)",
-            topic,
-            description,
-            ctx.author.id,
-            int(datetime.datetime.now().timestamp()),
-        )
+        idea_number = await self.db.ideas.add(ctx.author, topic, description)
 
         if not topic:
             topic = "Тема не была установлена"
