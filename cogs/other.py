@@ -1,10 +1,6 @@
 import discord
 from discord.ext import commands, tasks
 
-import urllib.parse
-import io
-import time
-from random import randint
 from naomi_paginator import Paginator 
 
 from utils.errors import PrefixTooLong  # pylint: disable=import-error
