@@ -21,12 +21,9 @@ class Other(commands.Cog):
     @commands.group(name="prefix", invoke_without_command=True)
     async def prefix(self, ctx):
         """Просмотр префикса
-
-        Для смены префикса используйте *`prefix set`*
-        Пример: `prefix set F!`
-
-        :warning: Бот чуствителен к регистру символов
-        :memo: Исполнение комманды без указаного перефикса покажет вам какой у вас сейчас префикс"""
+        Для смены префикса используйте *`prefix guild/user`*
+        
+        :memo: Самый большой приоритет имеет персональный префикс, но приоритет исчезает если префикс солпадает с стандартным префиксом бота"""
         
         user_prefix = await self.db.get(ctx.author)
 
@@ -46,7 +43,7 @@ class Other(commands.Cog):
     @commands.has_permissions(manage_guild=True)
     @commands.guild_only()
     @commands.cooldown(1, 15, commands.BucketType.guild)
-    async def prefix_guild(self, ctx, prefix):
+    async def prefix_guild(self, ctx, prefix=None):
         """Смена префикса сервера
 
         Для смены префикса используйте *`prefix guild`*
@@ -54,29 +51,26 @@ class Other(commands.Cog):
 
         :warning: Бот чуствителен к регистру символов
         :memo: Исполнение комманды без указаного перефикса покажет вам какой у вас сейчас префикс"""
+        if not prefix:
+            prefix = self.bot.config.get('prefix')
 
         if len(prefix) > 7:
             raise PrefixTooLong()
 
-        await self.bot.sql(
-            f"INSERT INTO prefixes (id, value) VALUES ($1,$2)"
-            "ON CONFLICT (id) DO UPDATE SET value = excluded.value;",
-            ctx.guild.id,
-            prefix,
-        )
+        is_reseted = await self.db.set(ctx.guild, prefix) # Returns 'Prefix reseted' if prefix reseted
 
         embed = discord.Embed(
             description="На сервере успешно установлен префикс %s" % prefix,
             color=discord.Colour.green(),
-        )
-        embed.set_author(
-            name=ctx.message.author.name, icon_url=str(ctx.author.avatar_url)
-        )
+        ) if not is_reseted else discord.Embed(description='Префикс сервера сброшен')
+        
+        embed.set_author(name=ctx.message.author.name, icon_url=str(ctx.author.avatar_url))
+        
         await ctx.send(embed=embed)
 
     @prefix.command(name="self", aliases=["user"])
     @commands.cooldown(1, 8, commands.BucketType.user)
-    async def prefix_self(self, ctx, prefix):
+    async def prefix_self(self, ctx, prefix=None):
         """Смена персонального префикса
 
         Для смены префикса используйте *`prefix self`*
@@ -85,24 +79,21 @@ class Other(commands.Cog):
         :warning: Бот чуствителен к регистру символов
         :memo: Исполнение комманды без указаного перефикса покажет вам какой у вас сейчас префикс"""
 
+        if not prefix:
+            prefix = self.bot.config.get('prefix')
+
         if len(prefix) > 7:
             raise PrefixTooLong()
 
-        await self.bot.sql(
-            f"INSERT INTO prefixes VALUES ($1,$2) "
-            "ON CONFLICT (id) DO UPDATE SET value = excluded.value;",
-            ctx.author.id,
-            prefix,
-        )
-        # except postgrelib_exceptions._base.InterfaceError: pass
+        is_reseted = await self.db.set(ctx.author, prefix) # Returns 'Prefix reseted' if prefix reseted
 
         embed = discord.Embed(
-            description="Персональный префикс %s успешно установлен" % prefix,
+            description="Ваш новый персональный префикс - `%s`" % prefix,
             color=discord.Colour.green(),
-        )
-        embed.set_author(
-            name=ctx.message.author.name, icon_url=str(ctx.author.avatar_url)
-        )
+        ) if not is_reseted else discord.Embed(description='Персональный префикс сброшен')
+        
+        embed.set_author(name=ctx.message.author.name, icon_url=str(ctx.author.avatar_url))
+        
         await ctx.send(embed=embed)
 
 

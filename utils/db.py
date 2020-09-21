@@ -24,6 +24,21 @@ class SQL:
         return result
 
 
+    async def rawDelete(self, table: str, column: str, value):
+        await self.sql(f"DELETE FROM {table} WHERE {column}={value}")
+
+    async def rawWrite(self, table: str, *values):
+        args_description = ''
+        for i in range(1,len(values)+1):
+            args_description += f'${i}, '
+        await self.sql(f"INSERT INTO {table} VALUES {args_description};", *values)
+
+    async def rawUpdate(self, table: str, primary_key: str, update_params: str, *values):
+        args_description = ''
+        for i in range(1, len(values)+1):
+            args_description += f'${i}, ' if i != len(values) else f'${i}'
+        await self.sql(f"INSERT INTO {table} VALUES ({args_description}) ON CONFLICT ({primary_key}) DO UPDATE SET {update_params};", *values)
+
 class PrefixesSQL(SQL):
     """Requests to DB associated with prefixes"""
 
@@ -41,3 +56,11 @@ class PrefixesSQL(SQL):
         # .get is dict function,
         # if value not recorded in table self.sql returns [], so we cannot use .get
         return prefix
+
+    async def set(self, obj: Union[User, Guild], value: str):
+        id = obj.id
+
+        if value == self.standartValue:
+            await self.rawDelete(table='prefixes', column='id', value=id)
+            return 'Prefix reseted'
+        await self.rawUpdate('prefixes', 'id', 'value=EXCLUDED.value', id, value) # table=prefixes, primary_key=id, update_params='value=EXCLUDED.value'
