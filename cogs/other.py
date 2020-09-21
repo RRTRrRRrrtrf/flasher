@@ -15,7 +15,6 @@ class Other(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.db = PrefixesSQL(bot.db, bot.config)
-        self.status_loop.start() # pylint: disable=no-member
     
     @commands.group(name="prefix", invoke_without_command=True)
     async def prefix(self, ctx, disable_footer=False): # disable_footer unrecheable from message
@@ -111,6 +110,14 @@ class Other(commands.Cog):
             f'{self.bot.config.get("prefix")}help для просмотра списка команд')
         s = choice(status)
         await self.bot.change_presence(status=discord.Status.online, activity=discord.Game(s))
+
+    @commands.Cog.listener()
+    async def on_ready(self):
+        """Starts status loop on bot ready"""
+        try:
+            self.status_loop.start() # pylint: disable=no-member
+        except RuntimeError:
+            pass
 
     @commands.command(aliases=["suggestIdea", "bug", "idea"])
     @commands.cooldown(1, 60, commands.BucketType.user)
