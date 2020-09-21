@@ -15,7 +15,7 @@ class Other(commands.Cog):
         self.db = PrefixesSQL(bot.db, bot.config)
     
     @commands.group(name="prefix", invoke_without_command=True)
-    async def prefix(self, ctx):
+    async def prefix(self, ctx, disable_footer=False): # disable_footer unrecheable from message
         """Просмотр префикса
         Для смены префикса используйте *`prefix guild/user`*
         
@@ -31,7 +31,7 @@ class Other(commands.Cog):
         ) if ctx.guild else None
 
         embed.set_author(name=ctx.message.author.name, icon_url=str(ctx.author.avatar_url))
-        embed.set_footer(text=f"{ctx.prefix}{ctx.command} • Префикс не имеет приоритета если солпадает с стандратным")
+        embed.set_footer(text=f" {ctx.prefix + ctx.command.name + ' • ' if not disable_footer else ''}Префикс не имеет приоритета если солпадает с стандратным") 
 
         await ctx.send(embed=embed)
 
@@ -70,6 +70,7 @@ class Other(commands.Cog):
         """Смена персонального префикса
 
         Для смены префикса используйте *`prefix self`*
+        Пример: `prefix self F!`        Для смены префикса используйте *`prefix self`*
         Пример: `prefix self F!`
 
         :warning: Бот чуствителен к регистру символов
@@ -92,6 +93,12 @@ class Other(commands.Cog):
         
         await ctx.send(embed=embed)
 
-
+    @commands.Cog.listener()
+    async def on_message(self, msg):
+        if msg.content != f"<@!{self.bot.user.id}>" or msg.author.bot:
+            return
+        ctx = await self.bot.get_context(msg)
+        await self.prefix(ctx, disable_footer=True)
+        
 def setup(bot):
     bot.add_cog(Other(bot))
