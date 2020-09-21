@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands, tasks
 
 from naomi_paginator import Paginator 
+from random import choice
 
 from utils.errors import PrefixTooLong  # pylint: disable=import-error
 from utils.db import PrefixesSQL # pylint: disable=import-error
@@ -13,6 +14,7 @@ class Other(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.db = PrefixesSQL(bot.db, bot.config)
+        self.status_loop.start() # pylint: disable=no-member
     
     @commands.group(name="prefix", invoke_without_command=True)
     async def prefix(self, ctx, disable_footer=False): # disable_footer unrecheable from message
@@ -99,6 +101,15 @@ class Other(commands.Cog):
             return
         ctx = await self.bot.get_context(msg)
         await self.prefix(ctx, disable_footer=True)
-        
+
+    @tasks.loop(seconds=45.0)
+    async def status_loop(self):
+        status = (
+            f'{self.bot.config.get("prefix")}help | {len(self.bot.users)} пользователь(ей)',
+            f'{self.bot.config.get("prefix")}help | {len(self.bot.guilds)} сервер(ов)',
+            f'{self.bot.config.get("prefix")}help для просмотра списка команд')
+        s = choice(status)
+        await self.bot.change_presence(status=discord.Status.online, activity=discord.Game(s))
+
 def setup(bot):
     bot.add_cog(Other(bot))
