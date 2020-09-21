@@ -31,7 +31,7 @@ class Admin(commands.Cog):
     @commands.command(hidden=True, aliases=["blacklist", "bl", "blU"])
     async def blacklistUser(self, ctx, id: int):
         """Добавить пользователя в ЧС бота."""
-        await self.bot.sql(
+        await self.sql(
             f"INSERT INTO blacklist VALUES ({id}) ON CONFLICT DO NOTHING;"
         )
         await ctx.send("> OK")
@@ -42,7 +42,7 @@ class Admin(commands.Cog):
     )
     async def pardonUser(self, ctx, id: int):
         """Исключить пользователя из ЧС бота."""
-        await self.bot.sql(f"DELETE FROM blacklist WHERE id={id};")
+        await self.sql(f"DELETE FROM blacklist WHERE id={id};")
         await ctx.send("> OK")
 
     @commands.command(name="sql", hidden=True)
@@ -97,9 +97,8 @@ class Admin(commands.Cog):
     async def addDashboard(self, ctx, topic: str, *, description: str):
         """Добавить запись в Dashboard"""
 
-
-        write_number = len(await self.bot.sql("SELECT * FROM dashboard")) + 1
-        await self.bot.sql(
+        write_number = len(await self.sql("SELECT * FROM dashboard")) + 1
+        await self.sql(
             f"INSERT INTO dashboard (author, topic, content, time) VALUES ($3,$1,$2,$4)",
             topic,
             description,
