@@ -62,7 +62,7 @@ class Other(commands.Cog):
         if len(prefix) > 7:
             raise PrefixTooLong()
 
-        is_reseted = await self.db.prefixes.prefixes.prefixes.prefixes.set(ctx.guild, prefix) # Returns 'Prefix reseted' if prefix reseted
+        is_reseted = await self.db.prefixes.set(ctx.guild, prefix) # Returns 'Prefix reseted' if prefix reseted
 
         embed = discord.Embed(
             description="На сервере успешно установлен префикс %s" % prefix,
@@ -91,7 +91,7 @@ class Other(commands.Cog):
         if len(prefix) > 7:
             raise PrefixTooLong()
 
-        is_reseted = await self.db.prefixes.prefixes.prefixes.set(ctx.author, prefix) # Returns 'Prefix reseted' if prefix reseted
+        is_reseted = await self.db.prefixes.set(ctx.author, prefix) # Returns 'Prefix reseted' if prefix reseted
 
         embed = discord.Embed(
             description="Ваш новый персональный префикс - `%s`" % prefix,
