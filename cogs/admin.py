@@ -121,8 +121,11 @@ class Admin(commands.Cog):
         )
         embed.set_footer(text="Запись опубликована")
 
-        await channel.send(embed=embed)
+        msg = await channel.send(embed=embed)
 
+        if channel.is_news():
+            await msg.publish()
+        
         embed = discord.Embed(
             title=f"Ваша запись #{write_number} опубликована успешно",
             color=discord.Colour.green(),
