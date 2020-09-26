@@ -8,12 +8,9 @@
     "supportServerInvite": "Place here server invite",
     "extensions": [
         "jishaku",
-        "cogs.text_tools",
+        "cogs.utilities",
         "utils.error_handler",
-        "cogs.user_tools",
-        "cogs.img_tools",
         "cogs.other",
-        "cogs.number_tools",
         "cogs.eco",
         "cogs.info",
         "cogs.admin"
