@@ -18,21 +18,6 @@ class Image_tools(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(aliases=["rgb", "color", "colorEmbed", "hex", "hexEmbed"])
-    async def rgbEmbed(self, ctx, red: int, green: int, blue: int):
-        """Отправка эмбеды с цветом который вы указали
-
-        :warning: Бот принимает только цветовую палитру RGB, показетели которой разделены пробелом а не запятой."""
-        emb = discord.Embed(
-            description=f"RGB:{red},{green},{blue}\nHEX:{rgb2hex(red,green,blue)}\nCMYK:В разработке\nHSV:В разработке\nHSL:В разработке",
-            color=discord.Color.from_rgb(red, green, blue),
-        )
-        emb.set_author(
-            name=ctx.message.author.name, icon_url=str(ctx.author.avatar_url)
-        )
-        emb.set_footer(text=f"{ctx.prefix}{ctx.command}")
-        await ctx.send(embed=emb)
-
     @commands.command(aliases=["ss"])
     @commands.cooldown(1, 8, commands.BucketType.member)
     @commands.is_nsfw()
@@ -44,8 +29,7 @@ class Image_tools(commands.Cog):
         msg = await ctx.send(
             embed=discord.Embed(
                 title="Ожидаем ответ от API...", color=discord.Colour.light_grey()
-            )
-        )
+            ))
         try:
             async with ClientSession() as session:
                 async with session.get(
