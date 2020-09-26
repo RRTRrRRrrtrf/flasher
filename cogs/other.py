@@ -3,7 +3,8 @@ from discord.ext import commands, tasks
 
 import datetime
 from naomi_paginator import Paginator 
-from random import choice, randint
+from random import randint
+from itertools import cycle
 
 from utils.errors import PrefixTooLong, TooManyTries, CanceledByUser # pylint: disable=import-error
 from utils.db import PrefixesSQL, IdeasSQL # pylint: disable=import-error
@@ -21,7 +22,10 @@ class Other(commands.Cog):
         self.db = DB
         self.db.prefixes = PrefixesSQL(bot.db, bot.config)
         self.db.ideas = IdeasSQL(bot.db)
-
+        self.status = cycle((
+            f'{self.bot.config.get("prefix")}help | {len(self.bot.users)} пользователь(ей)',
+            f'{self.bot.config.get("prefix")}help | {len(self.bot.guilds)} сервер(ов)',
+            f'{self.bot.config.get("prefix")}help для просмотра списка команд'))
 
     @commands.group(name="prefix", invoke_without_command=True)
     async def prefix(self, ctx, disable_footer=False): # disable_footer unrecheable from message
@@ -101,30 +105,6 @@ class Other(commands.Cog):
         embed.set_author(name=ctx.message.author.name, icon_url=str(ctx.author.avatar_url))
         
         await ctx.send(embed=embed)
-
-    @commands.Cog.listener()
-    async def on_message(self, msg):
-        if msg.content != f"<@!{self.bot.user.id}>" or msg.author.bot:
-            return
-        ctx = await self.bot.get_context(msg)
-        await self.prefix(ctx, disable_footer=True)
-
-    @tasks.loop(seconds=45.0)
-    async def status_loop(self):
-        status = (
-            f'{self.bot.config.get("prefix")}help | {len(self.bot.users)} пользователь(ей)',
-            f'{self.bot.config.get("prefix")}help | {len(self.bot.guilds)} сервер(ов)',
-            f'{self.bot.config.get("prefix")}help для просмотра списка команд')
-        s = choice(status)
-        await self.bot.change_presence(status=discord.Status.online, activity=discord.Game(s))
-
-    @commands.Cog.listener()
-    async def on_ready(self):
-        """Starts status loop on bot ready"""
-        try:
-            self.status_loop.start() # pylint: disable=no-member
-        except RuntimeError: # Raises if loop already started (because on reconnect event invokes)
-            pass
 
     @commands.command(aliases=["suggestIdea", "bug", "idea"])
     @commands.cooldown(1, 60, commands.BucketType.user)
@@ -235,6 +215,28 @@ class Other(commands.Cog):
         p.add_page(embed)
 
         await p.call_controller()
+
+####### Events and tasks
+    
+    @commands.Cog.listener()
+    async def on_message(self, msg):
+        if msg.content != f"<@!{self.bot.user.id}>" or msg.author.bot:
+            return
+        ctx = await self.bot.get_context(msg)
+        await self.prefix(ctx, disable_footer=True)
+
+    @tasks.loop(seconds=45.0)
+    async def status_loop(self):
+        activity = next(self.status)
+        await self.bot.change_presence(status=discord.Status.online, activity=activity)
+
+    @commands.Cog.listener()
+    async def on_ready(self):
+        """Starts status loop on bot ready"""
+        try:
+            self.status_loop.start() # pylint: disable=no-member
+        except RuntimeError: # Raises if loop already started (because on reconnect event invokes)
+            pass
 
 def setup(bot):
     bot.add_cog(Other(bot))
