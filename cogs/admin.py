@@ -8,7 +8,7 @@ import humanize
 import datetime
 import time
 
-from utils.db import SQL # pylint: disable=import-error
+from utils.db import SQL, DashboardSQL # pylint: disable=import-error
 
 class Admin(commands.Cog):
     """Комманды для владельца бота"""
@@ -16,6 +16,7 @@ class Admin(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.sql = SQL(bot.db).sql
+        self.dashboardDB = DashboardSQL(bot.db)
 
     async def cog_check(self, ctx):
         if await self.bot.is_owner(ctx.author):
@@ -31,15 +32,10 @@ class Admin(commands.Cog):
     @commands.command(hidden=True, aliases=["blacklist", "bl", "blU"])
     async def blacklistUser(self, ctx, id: int):
         """Добавить пользователя в ЧС бота."""
-        await self.sql(
-            f"INSERT INTO blacklist VALUES ({id}) ON CONFLICT DO NOTHING;"
-        )
+        await self.sql(f"INSERT INTO blacklist VALUES ({id}) ON CONFLICT DO NOTHING;")
         await ctx.send("> OK")
 
-    @commands.command(
-        hidden=True,
-        aliases=["pardon", "unblacklist", "unblacklistUser", "ubl", "ublU", "pu"],
-    )
+    @commands.command(hidden=True, aliases=["pardon", "unblacklist", "unblacklistUser", "ubl", "ublU", "pu"])
     async def pardonUser(self, ctx, id: int):
         """Исключить пользователя из ЧС бота."""
         await self.sql(f"DELETE FROM blacklist WHERE id={id};")
@@ -97,17 +93,7 @@ class Admin(commands.Cog):
     async def addDashboard(self, ctx, topic: str, *, description: str):
         """Добавить запись в Dashboard"""
 
-        write_number = len(await self.sql("SELECT * FROM dashboard")) + 1
-        await self.sql(
-            f"INSERT INTO dashboard (author, topic, content, time) VALUES ($3,$1,$2,$4)",
-            topic,
-            description,
-            ctx.author.id,
-            int(time.time()),
-        )
-
-        if not topic:
-            topic = "Тема не была установлена"
+        write_number = await self.dashboardDB.add(ctx.author, topic, description)
 
         channel = await self.bot.fetch_channel(self.bot.config["dashboardChannel"])
 

@@ -81,4 +81,17 @@ class IdeasSQL(SQL):
         await self.rawWrite('ideas', author.id, topic, description, timestamp)
         return len(await self.rawGetAll('ideas')) + 1
 
-    
+class DashboardSQL(SQL):
+    """Requests to DB associated with dashboard"""
+    def __init__(self, pool: asyncpg.pool.Pool):
+        super().__init__(pool)
+
+    async def add(self, author: User, topic: str, description: str or None, timestamp: float = datetime.now().timestamp()):
+        """Writes dashboard record"""
+        await self.rawWrite('dashboard', author.id, topic, description, timestamp)
+        return len(await self.rawGetAll('dashboard')) + 1
+
+    async def get(self):
+        """Returns last 15 dashboard records"""
+        return await self.sql("SELECT * from dashboard ORDER BY time DESC LIMIT 15;")
+        
