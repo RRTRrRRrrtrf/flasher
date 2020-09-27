@@ -107,7 +107,7 @@ class Other(commands.Cog):
     @commands.command(aliases=["suggestIdea", "bug", "idea"])
     @commands.cooldown(1, 60, commands.BucketType.user)
     async def suggest(self, ctx):
-        f"""Подайте идею для бота"""
+        """Подайте идею для бота"""
 
         def check(msg: discord.Message):
             return msg.author.id == ctx.author.id
