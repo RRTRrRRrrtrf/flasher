@@ -24,9 +24,9 @@ class CommandErrorHandler(commands.Cog):
 
         if isinstance(error, commands.DisabledCommand):
             embed = discord.Embed(
-                desctiption="Команда отключена", color=discord.Colour.dark_red()
+                description="Команда отключена", color=discord.Colour.dark_red()
             )
-            return await ctx.send(embed)
+            return await ctx.send(embed=embed)
 
         elif isinstance(error, commands.BadArgument):
             ctx.command.reset_cooldown(ctx)
@@ -160,11 +160,8 @@ class CommandErrorHandler(commands.Cog):
 
         
         elif isinstance(error, commands.errors.CheckFailure):                                    # Invokes only if user blacklisted 
-            msg = await ctx.send('%s, вы находитесь в чёрном списке бота.' % ctx.author.mention) # (or by admin cog, but commands.NotOwner will be already invoked)
-            await asyncio.sleep(10)
-            try:await msg.delete()
-            except:pass
-            return
+            await ctx.send('%s, вы находитесь в чёрном списке бота.' % ctx.author.mention,       # (or by admin cog, but commands.NotOwner will be already invoked)
+                delete_after=10)
 
         err = "\n".join(
             traceback.format_exception(type(error), error, error.__traceback__)
