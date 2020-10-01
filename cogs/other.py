@@ -32,13 +32,13 @@ class Other(commands.Cog):
         
         :memo: Самый большой приоритет имеет персональный префикс, но приоритет исчезает если префикс солпадает с стандартным префиксом бота"""
         
-        user_prefix = await self.db.prefixes.prefixes.prefixes.prefixes.get(ctx.author)
+        user_prefix = await self.db.prefixes.get(ctx.author)
 
         embed = discord.Embed(description="Ваш персональный префикс **`%s`**" % user_prefix,
             color=discord.Colour.gold())
 
         embed.add_field(name="Префикс сервера",
-            value="На этом сервере установлен префикс **`%s`**" % await self.db.prefixes.prefixes.prefixes.prefixes.get(ctx.guild)
+            value="На этом сервере установлен префикс **`%s`**" % await self.db.prefixes.get(ctx.guild)
         ) if ctx.guild else None
 
         embed.set_author(name=ctx.message.author.name, icon_url=str(ctx.author.avatar_url))
