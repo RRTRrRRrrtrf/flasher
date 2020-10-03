@@ -5,3 +5,4 @@ git+https://github.com/Naomi-bot-open-source/naomi-paginator
 discord.py>=1.4.0
 aiohttp
 asyncpg
+colorama

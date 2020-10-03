@@ -1,7 +1,6 @@
 import discord
 from discord.ext import commands
 
-from colormap import rgb2hex, rgb2hsv, hex2rgb
 from googletrans import Translator
 from aiohttp import ClientSession
 from naomi_paginator import Paginator
@@ -247,7 +246,6 @@ class User_tools(commands.Cog):
 
         Сменив ваш ник на один из таких ваш дискриминатор сменится на случайный
         :warning: Discord устанавливает ограничения на смену ника и дискриминатора при нескольких использованиях"""
-
         names = [
             user.name
             for user in self.bot.users
