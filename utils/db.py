@@ -5,7 +5,8 @@ from datetime import datetime
 
 class SQL:
     def __init__(self, pool: asyncpg.pool.Pool):
-        """Requests to database.
+        """
+        Requests to database.
 
         Arguments
         ---------
@@ -25,7 +26,8 @@ class SQL:
 
 
     async def rawGetAll(self, table: str):
-        """Gets all records from table.
+        """
+        Gets all records from table.
 
         Arguments
         ---------
@@ -35,7 +37,8 @@ class SQL:
         return result
 
     async def rawGet(self, table: str, column: str, value):
-        """Gets records from database.
+        """
+        Gets records from database.
 
         Arguments
         ---------
@@ -58,7 +61,8 @@ class SQL:
         await self.sql(f"DELETE FROM {table} WHERE {column}={value}")
 
     async def rawWrite(self, table: str, *values):
-        """Writes values.
+        """
+        Writes values.
 
         Arguments
         ---------
@@ -71,7 +75,8 @@ class SQL:
         await self.sql(f"INSERT INTO {table} VALUES ({args_description});", *values)
 
     async def rawUpdate(self, table: str, primary_key: str, update_params: str, returning: bool=False, *values):
-        """Writes or updates values.
+        """
+        Writes or updates values.
         
         Arguments
         ---------
@@ -99,7 +104,8 @@ class SQL:
 
 class PrefixesSQL(SQL):
     def __init__(self, pool: asyncpg.pool.Pool, config: dict):
-        """Requests to DB associated with prefixes.
+        """
+        Requests to DB associated with prefixes.
 
         Arguments
         ---------
@@ -141,22 +147,52 @@ class PrefixesSQL(SQL):
         await self.rawUpdate('prefixes', 'id', 'value=EXCLUDED.value', _id, value) # table=prefixes, primary_key=_id, update_params='value=EXCLUDED.value'
 
 class IdeasSQL(SQL):
-    """Requests to DB associated with bot ideas"""
     def __init__(self, pool: asyncpg.pool.Pool):
+        """
+        Requests to database associated with ideas.
+
+        Arguments
+        ---------
+        pool: asyncpg.pool.Pool - Opened pool to DB
+        """
         super().__init__(pool)
 
     async def add(self, author: User, topic: str or None, description: str, timestamp: float = datetime.now().timestamp()):
-        """Adds idea to DB."""
+        """
+        Adds idea to DB.
+
+        Arguments
+        ---------
+        author: discord.User - Author of idea
+        topic: str or None - Idea topic
+        descriptiom: str
+        timestamp: float = datetime.now().timestamp() - UNIX timestamp
+        """
         await self.rawWrite('ideas', author.id, topic, description, timestamp)
         return len(await self.rawGetAll('ideas')) + 1
 
 class DashboardSQL(SQL):
-    """Requests to DB associated with dashboard"""
     def __init__(self, pool: asyncpg.pool.Pool):
+        """
+        Requests to database associated with dashboard.
+
+        Arguments
+        ---------
+        pool: asyncpg.pool.Pool - Opened pool to DB
+        """
         super().__init__(pool)
 
     async def add(self, author: User, topic: str, description: str or None, timestamp: float = datetime.now().timestamp()):
-        """Writes dashboard record"""
+        """
+        Adds idea to DB.
+
+        Arguments
+        ---------
+        author: discord.User - Author of idea
+        topic: str or None - Idea topic
+        descriptiom: str
+        timestamp: float = datetime.now().timestamp() - UNIX timestamp
+        """
         await self.rawWrite('dashboard', author.id, topic, description, timestamp)
         return len(await self.rawGetAll('dashboard')) + 1
 
@@ -165,8 +201,15 @@ class DashboardSQL(SQL):
         return await self.sql("SELECT * from dashboard ORDER BY time DESC LIMIT 15;")
         
 class EconomySQL(SQL):
-    """Requests to DB associated with economy"""
     def __init__(self, pool: asyncpg.pool.Pool, bot_user: User):
+        """
+        Requests to database associated with economy.
+
+        Arguments
+        ---------
+        pool: asyncpg.pool.Pool - Opened pool to DB
+        bot_user: discord.User 
+        """
         super().__init__(pool)
         self.treasury = bot_user
 
@@ -180,18 +223,19 @@ class EconomySQL(SQL):
         
         return user.id
 
-    async def _get(self, id: int):
-        """Gets user's balance or inits it"""
+    async def _get(self, _id: int):
+        """Gets user's balance or inits it (set 0 value)."""
         result = await self.rawGet(table='eco', column='id', value=id)
 
         if not result: # ID not recorded to DB, .sql function returns []
-            await self.rawWrite('eco', id, 0) 
+            await self.rawWrite('eco', _id, 0)
             return 0
         
         return float(result.get('coins'))
 
     async def get(self, user: User):
-        """Gets user's balance
+        """
+        Gets user's balance
         
         Arguments
         ---------
@@ -199,13 +243,15 @@ class EconomySQL(SQL):
         
         Returns
         ---------
-        User balance (float)"""
+        User balance (float)
+        """
         _id = self._id(user)
         
         return await self._get(_id)
 
     async def set(self, user: User, amount: float):
-        """Updates user balance
+        """
+        Updates user balance
     
         Arguments
         ---------
@@ -217,7 +263,8 @@ class EconomySQL(SQL):
         await self.rawUpdate('eco', 'id', 'coins=excluded.coins', _id, amount) # table, primary key, update params, returning, *args
 
     async def add(self, user: User, amount: float):
-        """Add coins to user balance
+        """
+        Add coins to user balance
     
         Arguments
         ---------
@@ -235,5 +282,8 @@ class EconomySQL(SQL):
         return new_balance
 
     async def remove(self, user: User, amount: float=0):
-        """Remove coins from user balance. For arguments and returned see EconomySQL.add"""
+        """
+        Remove coins from user balance. 
+        For arguments and returned see EconomySQL.add
+        """
         return await self.add(user, amount=-amount)
