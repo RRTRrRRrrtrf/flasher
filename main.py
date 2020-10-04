@@ -60,13 +60,16 @@ class Bot(commands.Bot):
             commands.when_mentioned_or(self.get_prefix), 
             case_insensitive=True, help_command=None) # help_command=None disables included in discord.py help command.
         
-        load_extensions(self)
+        self._extension_loaded = False
 
 
     async def on_message_edit(self, before, msg): # "before" is unused variable
         await self.process_commands(msg)  # process commands by message edit
 
     async def on_connect(self):
+        if not self._extension_loaded:
+            load_extensions(self)
+            
         print(Back.LIGHTBLUE_EX + f'Websocket connected on {ctime()}')
 
     async def on_ready(self):
