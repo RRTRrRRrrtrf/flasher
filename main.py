@@ -2,13 +2,12 @@ import discord
 from discord.ext import commands
 
 import asyncpg
-import os
-from sys import dont_write_bytecode
+import sys
 import asyncio
 
 from time import ctime
- 
-dont_write_bytecode = True 
+
+sys.dont_write_bytecode = True
 
 from core.config import SQL_REQUESTS, load_bot_config, load_flags_config, load_extensions
 from utils.db import PrefixesSQL, SQL
@@ -19,7 +18,7 @@ del init
 
 
 async def run():
-    """Coroutine which starts bot and connects database"""
+    """Coroutine which starts bot and connects database."""
     try:
         db = await asyncpg.create_pool(config["sqlPath"])
         print(Fore.GREEN + "PostgreSQL database connected.")
@@ -35,7 +34,7 @@ async def run():
     bot = Bot(db)
     
     blacklisted = await sql("SELECT * FROM blacklist;")             # Gets blacklisted users list
-    blacklisted = [record.get('id') for record in blacklisted] 
+    blacklisted = [record.get('id') for record in blacklisted]
     
     del sql
 
@@ -54,7 +53,8 @@ class Bot(commands.AutoShardedBot):
     
         Arguments
         ---------
-        db: asyncpg.pool.Pool - PostgreSQL database connected to bot"""
+        db: asyncpg.pool.Pool - PostgreSQL database connected to bot
+        """
         self.config = config
 
         self.db = db
@@ -76,14 +76,15 @@ class Bot(commands.AutoShardedBot):
     async def on_connect(self):
         if not self._extension_loaded:
             load_extensions(self)
+            self._extension_loaded = True
 
         print(Back.LIGHTBLUE_EX + f'Websocket connected on {ctime()}')
 
     async def on_ready(self):
         print(Back.BLUE + f"Bot ready on {ctime()}")
-        
+
     async def get_prefix(self, msg):
-        """Returns user/guild's prefix"""
+        """Return user/guild's prefix."""
         user_prefix = await self.prefixes.get(msg.author)
 
         if msg.guild:

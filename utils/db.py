@@ -4,9 +4,13 @@ from discord import User, Guild
 from datetime import datetime
 
 class SQL:
-    """Requests to DB"""
-
     def __init__(self, pool: asyncpg.pool.Pool):
+        """Requests to database.
+
+        Arguments
+        ---------
+        pool: asyncpg.pool.Pool - Opened pool to DB
+        """
         self.db = pool
 
     async def sql(self, code, *args):
@@ -21,24 +25,53 @@ class SQL:
 
 
     async def rawGetAll(self, table: str):
+        """Gets all records from table.
+
+        Arguments
+        ---------
+        table: str - Name of table
+        """
         result = await self.sql(f"SELECT * FROM {table}")
         return result
 
     async def rawGet(self, table: str, column: str, value):
+        """Gets records from database.
+
+        Arguments
+        ---------
+        table: str - Name of table
+        column: str - Column where will be check
+        value - Value of column for check
+        """
         result = await self.sql(f"SELECT * FROM {table} WHERE {column}=$1", value)
         return result
 
     async def rawDelete(self, table: str, column: str, value):
+        """Deletes data from table.
+
+        Arguments
+        ---------
+        table: str - Name of table
+        column: str - Column where will be check
+        value - Value of column for check
+        """
         await self.sql(f"DELETE FROM {table} WHERE {column}={value}")
 
     async def rawWrite(self, table: str, *values):
+        """Writes values.
+
+        Arguments
+        ---------
+        table: str - Name of table
+        *values - Values to record
+        """
         args_description = ''
         for i in range(1, len(values)+1):
             args_description += f'${i}, ' if i != len(values) else f'${i}'
         await self.sql(f"INSERT INTO {table} VALUES ({args_description});", *values)
 
     async def rawUpdate(self, table: str, primary_key: str, update_params: str, returning: bool=False, *values):
-        """Writes or updates values
+        """Writes or updates values.
         
         Arguments
         ---------
@@ -52,8 +85,8 @@ class SQL:
         if returning==True
             asyncpg.Record of updated (created) row
         else
-            Empty list"""
-        
+            Empty list
+        """
         args_description = ''
     
         for i in range(1, len(values)+1): #  '$1, $2, $3'
@@ -65,31 +98,47 @@ class SQL:
 
 
 class PrefixesSQL(SQL):
-    """Requests to DB associated with prefixes"""
-
     def __init__(self, pool: asyncpg.pool.Pool, config: dict):
+        """Requests to DB associated with prefixes.
+
+        Arguments
+        ---------
+        pool: asyncpg.pool.Pool - Opened pool to DB
+        config: dict - Bot config
+        """
         super().__init__(pool)
         self.standartValue = config.get("prefix")
 
     async def get(self, obj: Union[User, Guild]) -> str:
-        """Get user/guild's prefix from DB"""
-        id = obj.id
+        """Get user/guild's prefix from DB.
 
-        result = await self.rawGet(table="prefixes", column="id", value=id)
+        Arguments
+        ---------
+        obj: discord.User or discord.Guild
+        """
+        _id = obj.id
 
-        prefix = result.get("value") if type(result) != list else self.standartValue
+        result = await self.rawGet(table="prefixes", column="id", value=_id)
+
+        prefix = result.get("value") if isinstance(result, list) else self.standartValue
         # .get is dict function,
         # if value not recorded in table self.sql returns [], so we cannot use .get
         return prefix
 
     async def set(self, obj: Union[User, Guild], value: str):
-        """(Re)sets user/guild prefix request to DB"""
-        id = obj.id
+        """(Re)sets user/guild prefix.
+
+        Arguments
+        ---------
+        obj: discord.User or discord.Guild
+        value: str - new prefix
+        """
+        _id = obj.id
 
         if value == self.standartValue:
-            await self.rawDelete(table='prefixes', column='id', value=id)
+            await self.rawDelete(table='prefixes', column='id', value=_id)
             return 'Prefix reseted' # True
-        await self.rawUpdate('prefixes', 'id', 'value=EXCLUDED.value', id, value) # table=prefixes, primary_key=id, update_params='value=EXCLUDED.value'
+        await self.rawUpdate('prefixes', 'id', 'value=EXCLUDED.value', _id, value) # table=prefixes, primary_key=_id, update_params='value=EXCLUDED.value'
 
 class IdeasSQL(SQL):
     """Requests to DB associated with bot ideas"""
@@ -151,9 +200,9 @@ class EconomySQL(SQL):
         Returns
         ---------
         User balance (float)"""
-        id = self._id(user)
+        _id = self._id(user)
         
-        return await self._get(id)
+        return await self._get(_id)
 
     async def set(self, user: User, amount: float):
         """Updates user balance
@@ -163,9 +212,9 @@ class EconomySQL(SQL):
         user: discord.User = None - User whose balance will be set. Provide bot user for treasury
         amount: float - New user balance
         """
-        id = self._id(user)
+        _id = self._id(user)
 
-        await self.rawUpdate('eco', 'id', 'coins=excluded.coins', id, amount) # table, primary key, update params, returning, *args
+        await self.rawUpdate('eco', 'id', 'coins=excluded.coins', _id, amount) # table, primary key, update params, returning, *args
 
     async def add(self, user: User, amount: float):
         """Add coins to user balance
@@ -179,10 +228,10 @@ class EconomySQL(SQL):
         ---------
         New user balance (float)
         """
-        id = self._id(user)
-        new_balance = await self._get(id) + amount
+        _id = self._id(user)
+        new_balance = await self._get(_id) + amount
 
-        await self.rawUpdate('eco','id','coins=excluded.coins', False, id, new_balance) # table, primary key, update params, returning, *args
+        await self.rawUpdate('eco','id','coins=excluded.coins', False, _id, new_balance) # table, primary key, update params, returning, *args
         return new_balance
 
     async def remove(self, user: User, amount: float=0):
