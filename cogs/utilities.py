@@ -13,9 +13,8 @@ import time
 
 
 class Image_tools(commands.Cog):
-    """Команды для работы с цветами и изображениями"""
-
     def __init__(self, bot):
+        """Команды для работы с цветами и изображениями"""
         self.bot = bot
 
     @commands.command(aliases=["ss"])
@@ -167,9 +166,8 @@ class Text_tools(commands.Cog):
 
 
 class Number_tools(commands.Cog):
-    """Команды по работе с числами"""
-
     def __init__(self, bot):
+        """Команды по работе с числами"""
         self.bot = bot
 
     @commands.command(aliases=["calc", "expr", "expression"])
@@ -219,9 +217,8 @@ class Number_tools(commands.Cog):
         await ctx.send(embed=emb)
 
 class User_tools(commands.Cog):
-    """Команды по работе с пользователями"""
-
     def __init__(self, bot):
+        """Команды по работе с пользователями"""
         self.bot = bot
 
     @commands.command(

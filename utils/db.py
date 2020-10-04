@@ -5,8 +5,7 @@ from datetime import datetime
 
 class SQL:
     def __init__(self, pool: asyncpg.pool.Pool):
-        """
-        Requests to database.
+        """Requests to database.
 
         Arguments
         ---------
@@ -50,7 +49,8 @@ class SQL:
         return result
 
     async def rawDelete(self, table: str, column: str, value):
-        """Deletes data from table.
+        """
+        Deletes data from table.
 
         Arguments
         ---------
@@ -77,7 +77,7 @@ class SQL:
     async def rawUpdate(self, table: str, primary_key: str, update_params: str, returning: bool=False, *values):
         """
         Writes or updates values.
-        
+
         Arguments
         ---------
         table: str - Name of table
@@ -116,7 +116,8 @@ class PrefixesSQL(SQL):
         self.standartValue = config.get("prefix")
 
     async def get(self, obj: Union[User, Guild]) -> str:
-        """Get user/guild's prefix from DB.
+        """
+        Get user/guild's prefix from DB.
 
         Arguments
         ---------
@@ -126,13 +127,14 @@ class PrefixesSQL(SQL):
 
         result = await self.rawGet(table="prefixes", column="id", value=_id)
 
-        prefix = result.get("value") if isinstance(result, list) else self.standartValue
+        prefix = result.get("value") if not isinstance(result, list) else self.standartValue
         # .get is dict function,
         # if value not recorded in table self.sql returns [], so we cannot use .get
         return prefix
 
     async def set(self, obj: Union[User, Guild], value: str):
-        """(Re)sets user/guild prefix.
+        """
+        (Re)sets user/guild prefix.
 
         Arguments
         ---------
@@ -197,7 +199,7 @@ class DashboardSQL(SQL):
         return len(await self.rawGetAll('dashboard')) + 1
 
     async def get(self):
-        """Returns last 15 dashboard records"""
+        """Returns last 15 dashboard records."""
         return await self.sql("SELECT * from dashboard ORDER BY time DESC LIMIT 15;")
         
 class EconomySQL(SQL):
@@ -208,13 +210,13 @@ class EconomySQL(SQL):
         Arguments
         ---------
         pool: asyncpg.pool.Pool - Opened pool to DB
-        bot_user: discord.User 
+        bot_user: discord.User
         """
         super().__init__(pool)
         self.treasury = bot_user
 
     def _id(self, user: User):
-        """Converts discord.User to int (id)"""
+        """Converts discord.User to int (id)."""
         if user == self.treasury:
             return self.treasury.id
 
@@ -225,7 +227,7 @@ class EconomySQL(SQL):
 
     async def _get(self, _id: int):
         """Gets user's balance or inits it (set 0 value)."""
-        result = await self.rawGet(table='eco', column='id', value=id)
+        result = await self.rawGet(table='eco', column='id', value=_id)
 
         if not result: # ID not recorded to DB, .sql function returns []
             await self.rawWrite('eco', _id, 0)
@@ -283,7 +285,7 @@ class EconomySQL(SQL):
 
     async def remove(self, user: User, amount: float=0):
         """
-        Remove coins from user balance. 
+        Remove coins from user balance.
         For arguments and returned see EconomySQL.add
         """
         return await self.add(user, amount=-amount)

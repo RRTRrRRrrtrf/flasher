@@ -5,13 +5,13 @@ from asyncio import sleep
 from random import randint
 
 class Info(commands.Cog):
-    """Информация о боте"""
     def __init__(self, bot):
+        """Информация о боте"""
         self.bot = bot
 
     @commands.command(aliases=["links", "inv", "git", "github", "support", "supportServer"])
     async def invite(self, ctx):
-        """ Пригласите бота на ваш сервер """
+        """Пригласите бота на ваш сервер"""
 
         invite = lambda code: discord.utils.oauth_url(self.bot.user.id, discord.Permissions(code)) # code variable receives int for permissions value
 
@@ -87,7 +87,7 @@ class Info(commands.Cog):
 
         for cog in cogs:
 
-            cog_name = cog.__class__.__doc__.partition('\n') # "Name\nDescription\n2" -> ('Name','\n','Description\n2')
+            cog_name = cog.__class__.__init__,__doc__.partition('\n') # "Name\nDescription\n2" -> ('Name','\n','Description\n2')
             cog_name = cog_name[0]                           # We need the only name.
             
 

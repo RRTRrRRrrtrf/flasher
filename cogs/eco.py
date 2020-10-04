@@ -7,9 +7,8 @@ from typing import Union
 from utils.db import EconomySQL # pylint: disable=all
 
 class Economy(commands.Cog):
-    """Команды экономики"""
-
     def __init__(self, bot):
+        """Команды экономики"""
         self.bot = bot
         self.anti_spam.start() # pylint: disable=no-member
         self.db = EconomySQL(self.bot.db, self.bot.user)

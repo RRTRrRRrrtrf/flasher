@@ -2,22 +2,19 @@ import discord
 from discord.ext import commands, tasks
 
 import datetime
-from naomi_paginator import Paginator 
+from naomi_paginator import Paginator
 from random import randint
 from itertools import cycle
 
 from utils.errors import PrefixTooLong, TooManyTries, CanceledByUser # pylint: disable=import-error
 from utils.db import PrefixesSQL, IdeasSQL, DashboardSQL # pylint: disable=import-error
 
-class DB:
-    """Empty class for self.db.prefixes/ideas"""
+class DB: #Empty class for self.db.prefixes/ideas
     pass
 
 class Other(commands.Cog):
-    """Другие команды
-    Комманды которым не нашлось другой категории."""
-
     def __init__(self, bot):
+        """Другие команды"""
         self.bot = bot
         self.db = DB
         self.db.prefixes = PrefixesSQL(bot.db, bot.config)

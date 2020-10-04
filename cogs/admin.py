@@ -11,9 +11,8 @@ import time
 from utils.db import SQL, DashboardSQL # pylint: disable=import-error
 
 class Admin(commands.Cog):
-    """Комманды для владельца бота"""
-
     def __init__(self, bot):
+        """Комманды для владельца бота"""
         self.bot = bot
         self.sql = SQL(bot.db).sql
         self.dashboardDB = DashboardSQL(bot.db)
