@@ -23,10 +23,10 @@ async def run():
     try:
         db = await asyncpg.create_pool(config["sqlPath"])
         print(Fore.GREEN + "PostgreSQL database connected.")
-    except:
+    except: # pylint: disable=bare-except
         print(Back.RED + "Database not connected, stoping.")
         exit(1)
-    
+
     sql = SQL(db).sql
 
     for request in SQL_REQUESTS:
@@ -39,27 +39,31 @@ async def run():
     
     del sql
 
-    @bot.check                                                      
+    @bot.check                                              
     def blacklist_check(ctx): # pylint: disable=unused-variable
-        """Checks are user blacklisted"""
-        if ctx.author.id not in blacklisted: 
+        """Checks is user blacklisted."""
+        if ctx.author.id not in blacklisted:
             return True                                             # If not triggered True, bot check fails because returned None
 
     await bot.start(config["token"], reconnect=True, bot=True)
 
 
-class Bot(commands.Bot):
-    """Main class for bot"""
-    def __init__(self, db):
+class Bot(commands.AutoShardedBot):
+    def __init__(self, db: asyncpg.pool.Pool):
+        """Bot class.
+    
+        Arguments
+        ---------
+        db: asyncpg.pool.Pool - PostgreSQL database connected to bot"""
         self.config = config
-        
-        self.db = db 
+
+        self.db = db
         self.sql = SQL(db).sql
         
         self.prefixes = PrefixesSQL(self.db, self.config)
 
         super().__init__(
-            commands.when_mentioned_or(self.get_prefix), 
+            commands.when_mentioned_or(self.get_prefix),
             case_insensitive=True, help_command=None) # help_command=None disables included in discord.py help command.
         
         self._extension_loaded = False
@@ -80,7 +84,6 @@ class Bot(commands.Bot):
         
     async def get_prefix(self, msg):
         """Returns user/guild's prefix"""
-
         user_prefix = await self.prefixes.get(msg.author)
 
         if msg.guild:
