@@ -1,23 +1,25 @@
-import discord 
-from discord.ext import commands, tasks  
-import asyncpg  
-from utils.db import PrefixesSQL, SQL
+import discord
+from discord.ext import commands
 
-from core.config import SQL_REQUESTS, load_bot_config, load_flags_config, load_extensions
-
-from time import ctime
+import asyncpg
 import os
-import sys
+from sys import dont_write_bytecode
 import asyncio
 
+from time import ctime
+ 
+dont_write_bytecode = True 
 
-from colorama import Fore, Back, init  
+from core.config import SQL_REQUESTS, load_bot_config, load_flags_config, load_extensions
+from utils.db import PrefixesSQL, SQL
+from colorama import Fore, Back, init
 
 init(autoreset=True)
 del init
 
 
-async def run(): # Connects the database and starts bot.
+async def run():
+    """Coroutine which starts bot and connects database"""
     try:
         db = await asyncpg.create_pool(config["sqlPath"])
         print(Fore.GREEN + "PostgreSQL database connected.")
@@ -69,7 +71,7 @@ class Bot(commands.Bot):
     async def on_connect(self):
         if not self._extension_loaded:
             load_extensions(self)
-            
+
         print(Back.LIGHTBLUE_EX + f'Websocket connected on {ctime()}')
 
     async def on_ready(self):
