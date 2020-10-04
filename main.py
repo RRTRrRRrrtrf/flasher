@@ -64,6 +64,7 @@ class Bot(commands.Bot):
         
         self._extension_loaded = False
 
+        self.allowed_mentions = discord.AllowedMentions(users=True,roles=False, everyone=False)
 
     async def on_message_edit(self, before, msg): # "before" is unused variable
         await self.process_commands(msg)  # process commands by message edit
