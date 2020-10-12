@@ -9,7 +9,7 @@ Flasher is Discord bot writed on [discord.py](https://github.com/Rapptz/discord.
 #### Pip modules:
 
 *   discord.py (1.4.0+)
-*   git+https://github.com/Naomi-bot-open-source/naomi-paginator
+*   git+https://github.com/The-Naomi-Developers/naomi-paginator
 *   jishaku (any version)
   *   psutil (optional)
 *   googletrans

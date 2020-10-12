@@ -1,7 +1,7 @@
 googletrans 
 psutil 
 jishaku 
-git+https://github.com/Naomi-bot-open-source/naomi-paginator 
+git+https://github.com/The-Naomi-Developers/naomi-paginator
 discord.py>=1.4.0
 aiohttp
 asyncpg

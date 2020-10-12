@@ -86,11 +86,11 @@ class Info(commands.Cog):
             cogs.append(cog)
 
         for cog in cogs:
-
-            cog_name = cog.__class__.__init__,__doc__.partition('\n') # "Name\nDescription\n2" -> ('Name','\n','Description\n2')
-            cog_name = cog_name[0]                           # We need the only name.
             
+            doc = cog.__class__.__init__.__doc__
 
+            cog_name = doc if doc else cog.__class__.__doc__.partition('\n')[0] # else block used in non-flasher cogs like jishaku
+            
             cmds = [cmd.name 
                    for cmd in self.bot.commands 
                    if not cmd.hidden 
