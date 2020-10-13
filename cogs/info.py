@@ -57,7 +57,7 @@ class Info(commands.Cog):
                 return await ctx.send(embed=notFoundEmbed,
                                       delete_after=10)
 
-            commandEmbed = discord.Embed(title=f'{ctx.prefix}{cmd.qualified_name} {cmd.signature}',     # outputs something like f.help <command> 
+            commandEmbed = discord.Embed(title=f'{ctx.prefix}{cmd.qualified_name} {cmd.signature}',     # outputs something like f.help <command>
                                         description=cmd.help or 'Описание не предоставлено')
             commandEmbed.set_footer(text=f'{ctx.prefix}{ctx.command}', icon_url=ctx.author.avatar_url)
 
@@ -69,12 +69,12 @@ class Info(commands.Cog):
             if isinstance(cmd, commands.Group):
                 subCmds = cmd.commands
                 subCmds = ', '.join([command.name for command in subCmds]) # f.prefix command -> 'self, guild' (string)
-                commandEmbed.add_field(name='Подкоманды', 
+                commandEmbed.add_field(name='Подкоманды',
                                        value=subCmds)
 
             return await ctx.send(embed=commandEmbed, delete_after=120)
 
-        p = Paginator(ctx) # naomi_paginator init, here starts answer if command arg not provided     
+        p = Paginator(ctx) # naomi_paginator init, here starts answer if command arg not provided 
         i = 0
         skipped = 0
         cogs = []
@@ -84,7 +84,7 @@ class Info(commands.Cog):
             cogs.append(cog)
 
         for cog in cogs:
-            
+
             doc = cog.__class__.__init__.__doc__
 
             cog_name = doc if doc else cog.__class__.__doc__.partition('\n')[0] # else block used in non-flasher cogs like jishaku

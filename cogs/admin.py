@@ -98,7 +98,7 @@ class Admin(commands.Cog):
             title=f"Запись #{write_number} от {ctx.author.name} • {topic}",
             description=description,
             timestamp=datetime.datetime.now())
-        embed.set_author(name=ctx.message.author.name, 
+        embed.set_author(name=ctx.message.author.name,
             icon_url=str(ctx.author.avatar_url))
         embed.set_footer(text="Запись опубликована")
 

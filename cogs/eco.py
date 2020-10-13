@@ -1,9 +1,7 @@
 import discord
 from discord.ext import commands, tasks
 
-from time import time
 from random import uniform
-from typing import Union
 from utils.db import EconomySQL # pylint: disable=all
 
 class Economy(commands.Cog):

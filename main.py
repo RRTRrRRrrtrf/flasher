@@ -32,13 +32,13 @@ async def run():
         await sql(request)
 
     bot = Bot(db)
-    
+
     blacklisted = await sql("SELECT * FROM blacklist;")             # Gets blacklisted users list
     blacklisted = [record.get('id') for record in blacklisted]
     
     del sql
 
-    @bot.check                                              
+    @bot.check                                         
     def blacklist_check(ctx): # pylint: disable=unused-variable
         """Checks is user blacklisted."""
         if ctx.author.id not in blacklisted:

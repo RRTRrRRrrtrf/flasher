@@ -97,7 +97,7 @@ class CommandErrorHandler(commands.Cog):
             await ctx.send(
                 embed=discord.Embed(
                     timestamp=ctx.message.created_at,
-                    description=f"Эту комманду можно исполнять только в канале с пометкой NSFW",
+                    description="Эту комманду можно исполнять только в канале с пометкой NSFW",
                     color=discord.Colour.red(),
                 ).set_footer(text=self.bot.user.name)
             )
@@ -158,7 +158,7 @@ class CommandErrorHandler(commands.Cog):
             return
 
 
-        elif isinstance(error, commands.errors.CheckFailure):                                    # Invokes only if user blacklisted 
+        elif isinstance(error, commands.errors.CheckFailure):                                    # Invokes only if user blacklisted
             await ctx.send('%s, вы находитесь в чёрном списке бота.' % ctx.author.mention,       # (or by admin cog, but commands.NotOwner will be already invoked)
                 delete_after=10)
 
@@ -176,7 +176,7 @@ class CommandErrorHandler(commands.Cog):
                     Вызвана в: {ctx.channel} (вызвана {ctx.author})
                     Сообщение: ```\n{ctx.message.content}\n```\nКод ошибки:\n```py\n{err}\n```"""))
         finally:
-            
+
             try:
                 await ctx.send(
                     embed=discord.Embed(

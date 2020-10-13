@@ -26,7 +26,7 @@ class Other(commands.Cog):
     async def prefix(self, ctx, disable_footer=False): # disable_footer unrecheable from message
         """Просмотр префикса
         Для смены префикса используйте *`prefix guild/user`*
-    
+
         :memo: Самый большой приоритет имеет персональный префикс, но приоритет исчезает если префикс солпадает с стандартным префиксом бота"""
         
         user_prefix = await self.db.prefixes.get(ctx.author)
@@ -145,7 +145,7 @@ class Other(commands.Cog):
 
             try:
                 await msg.delete()
-            except:
+            except discord.errors.Forbidden:
                 pass
 
             if description.lower() in ("отмена", "отменить", "cancel"):

@@ -84,7 +84,7 @@ class SQL:
         primary_key: str - Primary key, like 'id'
         update_params: str - Parameters for ON CONFLICT (primary_key) DO UPDATE SET ... Example - id=excluded.id
         returning: bool = False - Return recorded values?
-        
+
         Returns
         ---------
         if returning==True

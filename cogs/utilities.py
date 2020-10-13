@@ -8,9 +8,6 @@ from humanize import fractional
 from random import choice, randint, shuffle
 
 import urllib.parse
-import time
-
-
 
 class Image_tools(commands.Cog):
     def __init__(self, bot):

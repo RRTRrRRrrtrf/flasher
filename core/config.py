@@ -34,7 +34,7 @@ def load_extensions(bot, extensions: tuple = None):
         modules = extensions or bot.config["extensions"]
 
         for extension in modules:
-            
+        
             try:
                 bot.load_extension(extension)
                 print(Fore.BLACK + Back.GREEN + f"An extension \"{extension}\" loaded")
