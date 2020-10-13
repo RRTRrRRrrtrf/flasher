@@ -32,7 +32,7 @@ def load_extensions(bot, extensions: tuple = None):
         """Loads extensions (cogs)"""
 
         modules = extensions or bot.config["extensions"]
-        
+
         for extension in modules:
             
             try:
