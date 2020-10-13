@@ -58,7 +58,6 @@ class Bot(commands.AutoShardedBot):
         self.config = config
 
         self.db = db
-        self.sql = SQL(db).sql
         
         self.prefixes = PrefixesSQL(self.db, self.config)
 
