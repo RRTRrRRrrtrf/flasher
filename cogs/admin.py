@@ -6,13 +6,12 @@ import os
 import sys
 import humanize
 import datetime
-import time
 
 from utils.db import SQL, DashboardSQL # pylint: disable=import-error
 
 class Admin(commands.Cog):
     def __init__(self, bot):
-        """Комманды для владельца бота"""
+        """Комманды для владельца бота."""
         self.bot = bot
         self.sql = SQL(bot.db).sql
         self.dashboardDB = DashboardSQL(bot.db)
@@ -29,20 +28,20 @@ class Admin(commands.Cog):
         os.execl(sys.executable, sys.executable, *sys.argv)
 
     @commands.command(hidden=True, aliases=["blacklist", "bl", "blU"])
-    async def blacklistUser(self, ctx, id: int):
+    async def blacklistUser(self, ctx, _id: int):
         """Добавить пользователя в ЧС бота."""
-        await self.sql(f"INSERT INTO blacklist VALUES ({id}) ON CONFLICT DO NOTHING;")
+        await self.sql(f"INSERT INTO blacklist VALUES ({_id}) ON CONFLICT DO NOTHING;")
         await ctx.send("> OK")
 
     @commands.command(hidden=True, aliases=["pardon", "unblacklist", "unblacklistUser", "ubl", "ublU", "pu"])
-    async def pardonUser(self, ctx, id: int):
+    async def pardonUser(self, ctx, _id: int):
         """Исключить пользователя из ЧС бота."""
-        await self.sql(f"DELETE FROM blacklist WHERE id={id};")
+        await self.sql(f"DELETE FROM blacklist WHERE id={_id};")
         await ctx.send("> OK")
 
     @commands.command(name="sql", hidden=True)
     async def sql_cmd(self, ctx, *, code: jishaku.codeblocks.codeblock_converter):
-        """Исполнить запрос к PostgreSQL"""
+        """Исполнить запрос к PostgreSQL."""
         requests = code.content.split(";")
         out = []
         line = 0
@@ -71,11 +70,11 @@ class Admin(commands.Cog):
 
     @commands.command(hidden=True)
     async def sqlBackup(self, ctx):
-        """Создать резервную копию базы данных"""
+        """Создать резервную копию базы данных."""
         os.system(f'pg_dump {self.bot.config["sqlPath"]} > backup.psql')
 
         await ctx.author.send(
-            f"Backup loaded: " + humanize.naturalsize(os.path.getsize("backup.psql")),
+            "Backup loaded: " + humanize.naturalsize(os.path.getsize("backup.psql")),
             file=discord.File("backup.psql"))
 
     @commands.command(hidden=True)
@@ -85,13 +84,12 @@ class Admin(commands.Cog):
 
         try:
             await ctx.message.delete()
-        except:
+        except discord.errors.Forbidden:
             pass
 
     @commands.command(aliases=["dashboardAdd", "dbAdd", "addDb"], hidden=True)
     async def addDashboard(self, ctx, topic: str, *, description: str):
         """Добавить запись в Dashboard"""
-
         write_number = await self.dashboardDB.add(ctx.author, topic, description)
 
         channel = await self.bot.fetch_channel(self.bot.config["dashboardChannel"])
@@ -99,23 +97,20 @@ class Admin(commands.Cog):
         embed = discord.Embed(
             title=f"Запись #{write_number} от {ctx.author.name} • {topic}",
             description=description,
-            timestamp=datetime.datetime.now(),
-        )
-        embed.set_author(
-            name=ctx.message.author.name, icon_url=str(ctx.author.avatar_url)
-        )
+            timestamp=datetime.datetime.now())
+        embed.set_author(name=ctx.message.author.name, 
+            icon_url=str(ctx.author.avatar_url))
         embed.set_footer(text="Запись опубликована")
 
         msg = await channel.send(embed=embed)
 
         if channel.is_news():
             await msg.publish()
-        
+
         embed = discord.Embed(
             title=f"Ваша запись #{write_number} опубликована успешно",
             color=discord.Colour.green(),
-            url=self.bot.config["supportServerInvite"],
-        )
+            url=self.bot.config["supportServerInvite"])
         embed.add_field(name=topic, value=description)
 
         await ctx.send(embed=embed)
