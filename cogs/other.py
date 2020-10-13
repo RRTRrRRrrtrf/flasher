@@ -26,20 +26,20 @@ class Other(commands.Cog):
     async def prefix(self, ctx, disable_footer=False): # disable_footer unrecheable from message
         """Просмотр префикса
         Для смены префикса используйте *`prefix guild/user`*
-        
+    
         :memo: Самый большой приоритет имеет персональный префикс, но приоритет исчезает если префикс солпадает с стандартным префиксом бота"""
         
         user_prefix = await self.db.prefixes.get(ctx.author)
+        guild_prefix = await self.db.prefixes.get(ctx.guild) if ctx.guild else "Исполнено в ЛС"
 
         embed = discord.Embed(description="Ваш персональный префикс **`%s`**" % user_prefix,
             color=discord.Colour.gold())
 
         embed.add_field(name="Префикс сервера",
-            value="На этом сервере установлен префикс **`%s`**" % await self.db.prefixes.get(ctx.guild)
-        ) if ctx.guild else None
+            value=f"На этом сервере установлен префикс **`{guild_prefix}`**")
 
         embed.set_author(name=ctx.message.author.name, icon_url=str(ctx.author.avatar_url))
-        embed.set_footer(text=f" {ctx.prefix + ctx.command.name + ' • ' if not disable_footer else ''}Префикс не имеет приоритета если солпадает с стандратным") 
+        embed.set_footer(text=f" {ctx.prefix + ctx.command.name + ' • ' if not disable_footer else ''}Префикс не имеет приоритета если солпадает с стандратным")
 
         await ctx.send(embed=embed)
 
@@ -120,7 +120,7 @@ class Other(commands.Cog):
             
             try:
                 await msg.delete()
-            except:
+            except discord.errors.Forbidden:
                 pass
 
             if topic.lower() in ("skip", "пропустить", "пропуск", "скип"):
