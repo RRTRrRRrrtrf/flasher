@@ -1,5 +1,4 @@
 import traceback
-import sys, hashlib
 from discord.ext import commands
 import discord
 import datetime
@@ -87,7 +86,7 @@ class CommandErrorHandler(commands.Cog):
             await ctx.send(
                 embed=discord.Embed(
                     timestamp=ctx.message.created_at,
-                    title=f"Для исполнения этой комманды вы должны обладать следующими правами:",
+                    title="Для исполнения этой комманды вы должны обладать следующими правами:",
                     description=f"```md\n{perms}\n```",
                     color=discord.Colour.dark_red(),
                 ).set_footer(text=self.bot.user.name)
@@ -125,7 +124,7 @@ class CommandErrorHandler(commands.Cog):
             await ctx.send(
                 embed=discord.Embed(
                     timestamp=ctx.message.created_at,
-                    title=f"Боту должны быть предоставлены следующие права для выполнения этой команды:",
+                    title="Боту должны быть предоставлены следующие права для выполнения этой команды:",
                     description=f"```md\n{strperms}\n```",
                     color=discord.Colour.dark_red(),
                 ).set_footer(text=self.bot.user.name)
@@ -155,10 +154,10 @@ class CommandErrorHandler(commands.Cog):
 
         elif isinstance(error, PrefixTooLong):
             ctx.command.reset_cooldown(ctx)
-            await ctx.send(f"> Значение префикса не может быть больше чем 7 символов!")
+            await ctx.send("> Значение префикса не может быть больше чем 7 символов!")
             return
 
-        
+
         elif isinstance(error, commands.errors.CheckFailure):                                    # Invokes only if user blacklisted 
             await ctx.send('%s, вы находитесь в чёрном списке бота.' % ctx.author.mention,       # (or by admin cog, but commands.NotOwner will be already invoked)
                 delete_after=10)
