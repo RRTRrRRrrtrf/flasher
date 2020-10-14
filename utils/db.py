@@ -20,8 +20,7 @@ class SQL:
         # print(repr(output)) # For debug
         if len(output) == 1:
             return output[0]
-        else:
-            return output
+        return output
 
 
     async def rawGetAll(self, table: str):
@@ -58,7 +57,7 @@ class SQL:
         column: str - Column where will be check
         value - Value of column for check
         """
-        await self.sql(f"DELETE FROM {table} WHERE {column}={value}")
+        await self.sql(f"DELETE FROM {table} WHERE {column}=$1", value)
 
     async def rawWrite(self, table: str, *values):
         """
@@ -74,7 +73,7 @@ class SQL:
             args_description += f'${i}, ' if i != len(values) else f'${i}'
         await self.sql(f"INSERT INTO {table} VALUES ({args_description});", *values)
 
-    async def rawUpdate(self, table: str, primary_key: str, update_params: str, returning: bool=False, *values):
+    async def rawUpdate(self, table: str, primary_key: str, update_params: str, *values):
         """
         Writes or updates values.
 
@@ -97,8 +96,7 @@ class SQL:
         for i in range(1, len(values)+1): #  '$1, $2, $3'
             args_description += f'${i}, ' if i != len(values) else f'${i}'
 
-        request = f"INSERT INTO {table} VALUES ({args_description}) ON CONFLICT ({primary_key}) DO UPDATE SET {update_params}" + (" RETURNING *" if returning else "")
-        
+        request = f"INSERT INTO {table} VALUES ({args_description}) ON CONFLICT ({primary_key}) DO UPDATE SET {update_params} RETURNING *"
         return await self.sql(request, *values)
 
 
@@ -280,7 +278,7 @@ class EconomySQL(SQL):
         _id = self._id(user)
         new_balance = await self._get(_id) + amount
 
-        await self.rawUpdate('eco','id','coins=excluded.coins', False, _id, new_balance) # table, primary key, update params, returning, *args
+        await self.rawUpdate('eco','id','coins=excluded.coins', _id, new_balance) # table, primary key, update params, returning, *args
         return new_balance
 
     async def remove(self, user: User, amount: float=0):
